@@ -1,7 +1,6 @@
+import SwiftFigletKitTests
 import XCTest
 
-import SwiftFigletKitTests
-
-var tests = [XCTestCaseEntry]()
+var tests: [XCTestCaseEntry] = []
 tests += SwiftFigletKitTests.allTests()
 XCTMain(tests)
