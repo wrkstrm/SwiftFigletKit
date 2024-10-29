@@ -70,12 +70,12 @@ public struct SFKFigletFile {
     /// Returns a Header from String passed. If can't create it bacause `from` does not follow
     /// Figlet header format, returns `nil`
     /// - Parameter header: first line from a Figlet font file
-    public static func createFigletFontHeader(from header: String) -> Header? {
+    public static func createFigletFontHeader(from header: String) -> Self? {
       let headerParts = header.components(separatedBy: " ")
       guard
         !headerParts.isEmpty,
         let signature = headerParts.first,
-        signature.starts(with: Header.headerStartSignature)
+        signature.starts(with: Self.headerStartSignature)
       else { return nil }
 
       // last character in signature (start of header "flf2a$") is the hard blank character,
@@ -94,7 +94,7 @@ public struct SFKFigletFile {
       let fullLayout = Int(headerParts[safe: 7] ?? "0") ?? 0
       let codeTagCount = Int(headerParts[safe: 8] ?? "0") ?? 0
 
-      return Header(
+      return .init(
         hardBlank: hardBlank,
         height: fontHeight,
         baseline: baseLine,
@@ -124,7 +124,7 @@ public struct SFKFigletFile {
   /// Loads a Figlet file `.flf` from disc
   /// - Parameter file: file name
   /// - Returns: a`SFKFigletFile` object containing the file or `nil` if there was an error
-  public static func from(file: String) -> SFKFigletFile? {
+  public static func from(file: String) -> Self? {
     let dir = FileManager.default.currentDirectoryPath
     let fileURL = URL(fileURLWithPath: dir.appending("/").appending(file))
 
@@ -134,7 +134,7 @@ public struct SFKFigletFile {
   /// Loads a Figlet file `.flf` from disc
   /// - Parameter fileURL: URL pointing to the file.
   /// - Returns: a`SFKFigletFile` object containing the file or `nil` if there was an error
-  public static func from(url fileURL: URL) -> SFKFigletFile? {
+  public static func from(url fileURL: URL) -> Self? {
     do {
       // opening file with ASCII encoding, Figlet files are ASCII files
       let text = try String(contentsOf: fileURL, encoding: .ascii)
@@ -166,8 +166,8 @@ public struct SFKFigletFile {
       }
 
       // lines describing characters start after: 1 line header + header.commentLines
-      let characterLines = lines.dropFirst(header.commentLines + 1).map { $0 }
-      return SFKFigletFile(header: header, headerLines: headerLines, lines: characterLines)
+      let characterLines = Array(lines.dropFirst(header.commentLines + 1))
+      return .init(header: header, headerLines: headerLines, lines: characterLines)
     } catch {
       // errors opening file
       return nil

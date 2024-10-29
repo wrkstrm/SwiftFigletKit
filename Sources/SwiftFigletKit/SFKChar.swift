@@ -33,7 +33,7 @@ import Foundation
 /// ```
 public struct SFKChar {
   /// Represents an empty Character
-  public static let EmptyChar = SFKChar(charLines: [])
+  public static let emptyChar: SFKChar = .init(charLines: [])
 
   /// height in lines of this Character
   public let height: Int
