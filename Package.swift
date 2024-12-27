@@ -1,7 +1,7 @@
 // swift-tools-version:5.10
 import PackageDescription
 
-let package = Package(
+let package: Package = .init(
   name: "SwiftFigletKit",
   platforms: [
     .iOS(.v17),
@@ -20,7 +20,12 @@ let package = Package(
     .target(
       name: "SwiftFigletKit",
       dependencies: [],
-      resources: [.copy("Resources")]
+      resources: [
+        .copy("Resources/Fonts")
+      ],
+      swiftSettings: [
+        .define("SIMULATOR", .when(platforms: [.iOS], configuration: .debug))
+      ]
     ),
     .testTarget(
       name: "SwiftFigletKitTests",
