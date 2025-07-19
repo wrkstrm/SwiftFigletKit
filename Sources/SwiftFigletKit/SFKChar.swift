@@ -31,7 +31,7 @@ import Foundation
 ///  #  $@
 /// #####$@
 /// ```
-public struct SFKChar {
+public struct SFKChar: Sendable {
   /// Represents an empty Character
   public static let emptyChar: SFKChar = .init(charLines: [])
 
