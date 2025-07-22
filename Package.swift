@@ -25,11 +25,11 @@ let package: Package = .init(
       ],
       swiftSettings: [
         .define("SIMULATOR", .when(platforms: [.iOS], configuration: .debug))
-      ]
+      ],
     ),
     .testTarget(
       name: "SwiftFigletKitTests",
-      dependencies: ["SwiftFigletKit"]
+      dependencies: ["SwiftFigletKit"],
     ),
-  ]
+  ],
 )

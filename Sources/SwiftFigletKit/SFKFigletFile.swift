@@ -32,15 +32,15 @@ public struct SFKFigletFile {
 
   /**
     Figlet file header
-
+  
     ```
     From: http://www.jave.de/docs/figfont.txt
-
+  
     THE HEADER LINE
-
+  
     The header line gives information about the FIGfont.  Here is an example
     showing the names of all parameters:
-
+  
               flf2a$ 6 5 20 15 3 0 143 229    NOTE: The first five characters in
                 |  | | | |  |  | |  |   |     the entire file must be "flf2a".
                /  /  | | |  |  | |  |   \
@@ -49,7 +49,7 @@ public struct SFKFigletFile {
              Height  /   |  |   \  Print_Direction
              Baseline   /    \   Comment_Lines
               Max_Length      Old_Layout*
-
+  
       * The two layout parameters are closely related and fairly complex.
           (See "INTERPRETATION OF LAYOUT PARAMETERS".)
     ```
@@ -103,7 +103,7 @@ public struct SFKFigletFile {
         commentLines: commentLines,
         commentDirection: commentDirection,
         fullLayout: fullLayout,
-        codeTagCount: codeTagCount
+        codeTagCount: codeTagCount,
       )
     }
   }
@@ -148,7 +148,7 @@ public struct SFKFigletFile {
         // we try to split each line using Windows line terminator style
         // some font files have mixed line endings
         let splittedLine = line.split(
-          separator: CRLF.windowsStyle.rawValue, omittingEmptySubsequences: false
+          separator: CRLF.windowsStyle.rawValue, omittingEmptySubsequences: false,
         )
         for sl in splittedLine {
           finalLines.append(sl)

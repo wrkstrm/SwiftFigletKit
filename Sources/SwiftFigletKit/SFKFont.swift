@@ -54,7 +54,7 @@ extension SFKFont {
     let enumerator = FileManager.default.enumerator(
       at: resourceURL!,
       includingPropertiesForKeys: [.isRegularFileKey],
-      options: [.skipsHiddenFiles]
+      options: [.skipsHiddenFiles],
     )
 
     var fonts: [SFKFont] = []
