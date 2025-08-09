@@ -5,42 +5,45 @@
 //  Created by Diego Freniche Brito on 10/05/2020.
 //
 
-import XCTest
+import Testing
+import Foundation
 
 @testable import SwiftFigletKit
 
-final class SFKFontTests: XCTestCase {
-  let sampleA = [
-    "                      ",
-    "         .8.          ",
-    "        .888.         ",
-    "       :88888.        ",
-    "      . `88888.       ",
-    "     .8. `88888.      ",
-    "    .8`8. `88888.     ",
-    "   .8' `8. `88888.    ",
-    "  .8'   `8. `88888.   ",
-    " .888888888. `88888.  ",
-    ".8'       `8. `88888. ",
-  ]
-  func test_Given_FontFile_LoadsFont() {
-    let thisSourceFile = URL(fileURLWithPath: #file)
+@Suite struct SFKFontTests {
+  @Test func test_Given_FontFile_LoadsFont() {
+    let sampleA = [
+      "                      ",
+      "         .8.          ",
+      "        .888.         ",
+      "       :88888.        ",
+      "      . `88888.       ",
+      "     .8. `88888.      ",
+      "    .8`8. `88888.     ",
+      "   .8' `8. `88888.    ",
+      "  .8'   `8. `88888.   ",
+      " .888888888. `88888.  ",
+      ".8'       `8. `88888. ",
+    ]
+
+    let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/Broadway.flf")
 
     let font = SFKFont.from(url: resourceURL)
-    XCTAssertEqual(font!.height, 11)
-    XCTAssertEqual(font!.fkChar["A"]?.lines, sampleA)
+    #expect(font != nil)
+    #expect(font?.height == 11)
+    #expect(font?.fkChar["A"]?.lines == sampleA)
   }
 
-  func test_Given_FontFile_Font_ContainsFigletFontFile() {
-    let thisSourceFile = URL(fileURLWithPath: #file)
+  @Test func test_Given_FontFile_Font_ContainsFigletFontFile() {
+    let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/Broadway.flf")
 
     let font = SFKFont.from(url: resourceURL)
-    XCTAssertNotNil(font!.figletFile)
-    XCTAssertEqual(font!.figletFile?.header.commentLines, 29)
-    XCTAssertEqual(font!.figletFile?.header.hardBlank, "$")
+    #expect(font?.figletFile != nil)
+    #expect(font?.figletFile?.header.commentLines == 29)
+    #expect(font?.figletFile?.header.hardBlank == "$")
   }
 }
