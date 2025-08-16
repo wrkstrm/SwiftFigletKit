@@ -5,8 +5,8 @@
 //  Created by Diego Freniche Brito on 10/05/2020.
 //
 
-import Testing
 import Foundation
+import Testing
 
 @testable import SwiftFigletKit
 
