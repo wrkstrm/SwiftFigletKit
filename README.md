@@ -19,25 +19,29 @@ A simple library to read and display [banner](https://en.wikipedia.org/wiki/Bann
 
 ## Limitations
 
-- this is a macOS library, for CLI programs. Can be adapted for iOS.
+- SwiftFigletKit targets Apple platforms (iOS, macOS, tvOS and watchOS) and prints to standard output.
 - Only Figlet font files are supported (.flf)
 - If you have trouble loading a flf file, open an issue and attach font file, please.
 
 ## How to Use
 
-- Load a `SFKFont` with
+- Load a bundled `SFKFont`
 
 ```swift
-
 import SwiftFigletKit
- 
-let font = SFKFont.from(file: "fonts/starwars.flf")
+
+if let url = Bundle.module.url(forResource: "starwars", withExtension: "flf", subdirectory: "Fonts"),
+   let font = SFKFont.from(url: url) {
+  print(string: "Swift Figlet Kit", usingFont: font)
+}
 ```
 
-- Once loaded, you can start printing to the console using
+- Or let the package choose a random bundled font for you
 
 ```swift
-print(string: "Swift Figlet Kit", usingFont: font)
+if let font = SFKFont.random() {
+  print(string: "Swift Figlet Kit", usingFont: font)
+}
 ```
 
 - No step 3. Told you it was a simple library 😅
