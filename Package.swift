@@ -11,7 +11,7 @@ let package: Package = .init(
   ],
   products: [
     .library(name: "SwiftFigletKit", targets: ["SwiftFigletKit"]),
-    .executable(name: "swiftfiglet", targets: ["SwiftFigletCLI"]),
+    .executable(name: "swiftfiglet-cli", targets: ["SwiftFigletCLI"]),
   ],
   dependencies: [
     // Dependencies declare other packages that this package depends on.

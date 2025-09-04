@@ -33,7 +33,7 @@ struct CLI {
   }
 
   static func printUsage() {
-    let exe = (CommandLine.arguments.first as NSString?)?.lastPathComponent ?? "swiftfiglet"
+    let exe = (CommandLine.arguments.first as NSString?)?.lastPathComponent ?? "swiftfiglet-cli"
     let msg = """
     Usage: \(exe) [options] <text>
 
@@ -106,4 +106,3 @@ func run() -> Int32 {
 }
 
 exit(run())
-
