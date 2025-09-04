@@ -21,6 +21,7 @@ let package: Package = .init(
     .target(
       name: "SwiftFigletKit",
       dependencies: [],
+      exclude: ["Resources/README.md"],
       resources: [
         .copy("Resources/Fonts")
       ],
@@ -35,6 +36,9 @@ let package: Package = .init(
     .testTarget(
       name: "SwiftFigletKitTests",
       dependencies: ["SwiftFigletKit"],
+      resources: [
+        .copy("SwiftFigletKitTests/testFonts")
+      ]
     ),
   ],
 )
