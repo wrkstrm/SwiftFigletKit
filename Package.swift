@@ -10,7 +10,8 @@ let package: Package = .init(
     .watchOS(.v9),
   ],
   products: [
-    .library(name: "SwiftFigletKit", targets: ["SwiftFigletKit"])
+    .library(name: "SwiftFigletKit", targets: ["SwiftFigletKit"]),
+    .executable(name: "swiftfiglet", targets: ["SwiftFigletCLI"]),
   ],
   dependencies: [
     // Dependencies declare other packages that this package depends on.
@@ -26,6 +27,10 @@ let package: Package = .init(
       swiftSettings: [
         .define("SIMULATOR", .when(platforms: [.iOS], configuration: .debug))
       ],
+    ),
+    .executableTarget(
+      name: "SwiftFigletCLI",
+      dependencies: ["SwiftFigletKit"]
     ),
     .testTarget(
       name: "SwiftFigletKitTests",
