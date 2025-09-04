@@ -37,7 +37,7 @@ let package: Package = .init(
       name: "SwiftFigletKitTests",
       dependencies: ["SwiftFigletKit"],
       resources: [
-        .copy("SwiftFigletKitTests/testFonts")
+        .copy("testFonts")
       ]
     ),
   ],
