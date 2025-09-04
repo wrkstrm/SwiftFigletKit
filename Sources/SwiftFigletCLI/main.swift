@@ -38,14 +38,14 @@ struct CLI {
     Usage: \(exe) [options] <text>
 
     Options:
-      -f, --font <name>     Use a specific font (base name or .flf)
-      -l, --list-fonts      List bundled fonts and exit
+      --font <name>         Use a specific font (base name or .flf)
+      --list-fonts          List bundled fonts and exit
       -h, --help            Show this help message
 
     Examples:
       \(exe) "Hello World"
-      \(exe) -f Standard "Banner"
-      echo hello | \(exe) -f Slant
+      \(exe) --font Standard "Banner"
+      echo hello | \(exe) --font Slant
     """
     print(msg)
   }
