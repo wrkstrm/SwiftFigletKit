@@ -4,7 +4,7 @@ import SwiftFigletKit
 
 @main
 struct SwiftFigletCLI: ParsableCommand {
-  static var configuration = CommandConfiguration(
+  static let configuration = CommandConfiguration(
     commandName: "swift-figlet-cli",
     abstract: "Render text using bundled FIGlet fonts"
   )
