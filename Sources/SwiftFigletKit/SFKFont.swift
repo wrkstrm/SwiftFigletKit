@@ -50,7 +50,6 @@ public struct SFKFont {
 extension SFKFont {
   public static func random() -> SFKFont? {
     let resourceURL = Bundle.module.resourceURL
-    resourceURL!.absoluteString.replacingOccurrences(of: "file://", with: "")
     let enumerator = FileManager.default.enumerator(
       at: resourceURL!,
       includingPropertiesForKeys: [.isRegularFileKey],
