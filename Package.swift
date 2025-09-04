@@ -14,7 +14,7 @@ let package: Package = .init(
     .executable(name: "swift-figlet-cli", targets: ["SwiftFigletCLI"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0")
   ],
   targets: [
     .target(

@@ -28,8 +28,11 @@ public enum SFKRenderer {
   public static func render(text: String, fontName name: String?) -> String? {
     let chosenURL: URL?
     if let name = name, !name.isEmpty {
-      if name.lowercased() == "random" { chosenURL = SFKFonts.randomURL() }
-      else { chosenURL = SFKFonts.find(name) }
+      if name.lowercased() == "random" {
+        chosenURL = SFKFonts.randomURL()
+      } else {
+        chosenURL = SFKFonts.find(name)
+      }
     } else {
       chosenURL = SFKFonts.find("Standard")
     }
@@ -37,4 +40,3 @@ public enum SFKRenderer {
     return render(text: text, fontURL: url)
   }
 }
-

@@ -1,5 +1,5 @@
-import Foundation
 import ArgumentParser
+import Foundation
 import SwiftFigletKit
 
 @main
@@ -30,7 +30,9 @@ struct SwiftFigletCLI: ParsableCommand {
     }
 
     if randomFontOnly {
-      guard let name = SFKFonts.randomName() else { throw ValidationError("No bundled fonts found.") }
+      guard let name = SFKFonts.randomName() else {
+        throw ValidationError("No bundled fonts found.")
+      }
       print(name)
       return
     }
@@ -49,8 +51,12 @@ struct SwiftFigletCLI: ParsableCommand {
       }
       return SFKFonts.find("Standard")
     }()
-    guard let url = fontURL else { throw ValidationError("Unknown or unavailable font: \(desired ?? "(nil)")") }
-    guard let font = SFKFont.from(url: url) else { throw ValidationError("Failed to load font at \(url.path)") }
+    guard let url = fontURL else {
+      throw ValidationError("Unknown or unavailable font: \(desired ?? "(nil)")")
+    }
+    guard let font = SFKFont.from(url: url) else {
+      throw ValidationError("Failed to load font at \(url.path)")
+    }
 
     print(string: message, usingFont: font)
   }

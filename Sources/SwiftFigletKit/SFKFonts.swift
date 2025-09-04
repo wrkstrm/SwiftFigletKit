@@ -26,6 +26,16 @@ public enum SFKFonts {
       .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
   }
 
+  /// Returns a random bundled font name.
+  public static func randomName() -> String? {
+    listNames().randomElement()
+  }
+
+  /// Returns a random bundled font URL.
+  public static func randomURL() -> URL? {
+    all().randomElement()
+  }
+
   /// Finds a font URL by name. Accepts either a base name or filename with extension.
   /// Comparison is case-insensitive; space and underscore differences are tolerated.
   public static func find(_ name: String) -> URL? {
@@ -46,4 +56,3 @@ public enum SFKFonts {
       .lowercased()
   }
 }
-
