@@ -8,7 +8,7 @@ struct SwiftFigletCLI: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-cli",
     abstract: "Render text using bundled FIGlet fonts",
-    subcommands: [Greet.self, InstallFigletGreet.self]
+    subcommands: [Greet.self]
   )
 
   @Flag(name: .customLong("list-fonts"), help: "List bundled fonts and exit")
@@ -39,8 +39,8 @@ struct SwiftFigletCLI: ParsableCommand {
       return
     }
 
-    let inputText = text.isEmpty ? readStdinIfPiped() : text.joined(separator: " ")
-    guard let message = inputText, !message.isEmpty else {
+    let message = text.joined(separator: " ")
+    guard !message.isEmpty else {
       throw ValidationError("No text provided (arg or stdin).")
     }
 
@@ -118,68 +118,7 @@ struct Greet: ParsableCommand {
       "Outcome over output",
       "Focus beats luck",
       "Build for users",
-      "Calm is a superpower",
-      "Step into the arena",
-      "Today is a good day",
-      "Finish strong",
-      "Consistency compounds",
-      "Enjoy the journey",
     ]
     return phrases.randomElement()
   }
-}
-
-// Subcommand: install-figlet-greet (LaunchAgent installer using library)
-struct InstallFigletGreet: AsyncParsableCommand {
-  static let configuration = CommandConfiguration(
-    commandName: "install-figlet-greet",
-    abstract: "Install a daily LaunchAgent for any program (generic)"
-  )
-
-  @Option(name: .customLong("label"), help: "LaunchAgent label")
-  var label: String = "com.wrkstrm.figlet-greet"
-
-  @Option(name: .customLong("program"), help: "Program path to run (absolute)")
-  var program: String
-
-  @Option(name: .customLong("args"), help: "Program argument (repeatable)")
-  var args: [String] = []
-
-  @Option(name: .customLong("hour"), help: "Hour 0-23")
-  var hour: Int = 9
-
-  @Option(name: .customLong("min"), help: "Minute 0-59")
-  var minute: Int = 0
-
-  @Option(name: .customLong("stdout"), help: "Stdout log path")
-  var stdout: String = "~/Library/Logs/figlet-greet.log"
-
-  @Option(name: .customLong("stderr"), help: "Stderr log path")
-  var stderr: String = "~/Library/Logs/figlet-greet.err"
-
-  mutating func run() async throws {
-    let scheduler = SystemScheduler()
-    let dest = try await scheduler.installDaily(
-      label: label,
-      program: program,
-      args: args,
-      hour: hour,
-      minute: minute,
-      stdout: stdout,
-      stderr: stderr
-    )
-    print("Installed and loaded: \(dest)")
-    print("Logs: \(stdout) (and \(stderr))")
-  }
-}
-
-private func readStdinIfPiped() -> String? {
-  if isatty(fileno(stdin)) == 0 {
-    let data = FileHandle.standardInput.readDataToEndOfFile()
-    if let s = String(data: data, encoding: .utf8) {
-      let trimmed = s.trimmingCharacters(in: .whitespacesAndNewlines)
-      return trimmed.isEmpty ? nil : trimmed
-    }
-  }
-  return nil
 }
