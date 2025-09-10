@@ -24,8 +24,7 @@ Notes
 - The CLI uses Swift Argument Parser and supports long-form flags like
   `--font` and `--list-fonts`.
 
-Color and gradients
--------------------
+## Color and gradients
 
 SwiftFigletKit includes lightweight ANSI color helpers (disabled by default in Xcode environments)
 and simple gradient rendering across lines.
