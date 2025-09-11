@@ -1,7 +1,6 @@
 import ArgumentParser
 import Foundation
 import SwiftFigletKit
-import SystemScheduler
 
 @main
 struct SwiftFigletCLI: ParsableCommand {
