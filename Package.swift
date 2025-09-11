@@ -15,7 +15,6 @@ let package: Package = .init(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
-    .package(name: "SystemScheduler", path: "../SystemScheduler"),
   ],
   targets: [
     .target(
@@ -33,7 +32,6 @@ let package: Package = .init(
       dependencies: [
         "SwiftFigletKit",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-        .product(name: "SystemScheduler", package: "SystemScheduler"),
       ]
     ),
     .testTarget(
