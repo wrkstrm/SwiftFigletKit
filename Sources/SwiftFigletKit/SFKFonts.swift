@@ -11,18 +11,35 @@ public enum SFKFonts {
   public static func all() -> [URL] {
     guard let root = Bundle.module.resourceURL?.appendingPathComponent("Fonts", isDirectory: true)
     else { return [] }
-
     let fm = FileManager.default
-    guard let items = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else {
-      return []
+    guard let items = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else { return [] }
+    // Support both plain .flf and compressed .flf.gz; prefer .flf.gz when both exist for same name.
+    var best: [String: URL] = [:] // baseName -> URL
+    for url in items {
+      let ext = url.pathExtension.lowercased()
+      if ext == "flf" {
+        let name = url.deletingPathExtension().lastPathComponent
+        if best[name] == nil { best[name] = url }
+      } else if ext == "gz", url.deletingPathExtension().pathExtension.lowercased() == "flf" {
+        // double extension .flf.gz
+        let base = url.deletingPathExtension().deletingPathExtension().lastPathComponent
+        best[base] = url // prefer gz
+      }
     }
-    return items.filter { $0.pathExtension.lowercased() == "flf" }
+    return best.values.sorted { $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending }
   }
 
   /// Lists all bundled font display names (without extension), sorted A–Z.
   public static func listNames() -> [String] {
     all()
-      .map { $0.deletingPathExtension().lastPathComponent }
+      .map {
+        let last = $0.lastPathComponent
+        if last.lowercased().hasSuffix(".flf.gz") {
+          return $0.deletingPathExtension().deletingPathExtension().lastPathComponent
+        } else {
+          return $0.deletingPathExtension().lastPathComponent
+        }
+      }
       .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
   }
 
@@ -41,11 +58,14 @@ public enum SFKFonts {
   public static func find(_ name: String) -> URL? {
     let wanted = normalize(name)
     for url in all() {
-      let base = url.deletingPathExtension().lastPathComponent
-      let withExt = url.lastPathComponent
-      if normalize(base) == wanted || normalize(withExt) == wanted {
-        return url
+      let last = url.lastPathComponent
+      let base: String
+      if last.lowercased().hasSuffix(".flf.gz") {
+        base = url.deletingPathExtension().deletingPathExtension().lastPathComponent
+      } else {
+        base = url.deletingPathExtension().lastPathComponent
       }
+      if normalize(base) == wanted || normalize(last) == wanted { return url }
     }
     return nil
   }

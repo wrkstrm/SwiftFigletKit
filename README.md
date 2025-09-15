@@ -24,6 +24,14 @@ Docs
   - https://wrkstrm.github.io/SwiftFigletKit/
   - If publishing under a fork or different repo name, replace `wrkstrm/SwiftFigletKit` accordingly.
 
+Packaging and environment
+
+- Fonts are bundled as gzip-compressed resources under `Resources/Fonts/*.flf.gz` to reduce size. The library transparently inflates `.flf.gz` at runtime.
+- Linux/macOS requirement: `gzip`/`gunzip` must be available on PATH. Verify with:
+  - `swift-figlet-cli doctor`
+- Editable font sources live under `Sources/SwiftFigletKit/Fonts/{core,duplicates}` and are mirrored into resources via:
+  - `npm run figlet:fonts:prepare`
+
 Notes
 
 - Fonts are bundled as SwiftPM resources and discovered via `Bundle.module`.

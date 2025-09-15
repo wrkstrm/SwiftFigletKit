@@ -1,18 +1,13 @@
 # ``SwiftFigletKit``
 
-SwiftFigletKit renders FIGlet banners in Swift. It includes bundled fonts, ANSI color utilities, and
-helpers for gradients and random banner rendering.
+Render ASCII art banners using bundled FIGlet fonts, with simple color helpers and a small CLI.
 
-## Overview
-
-Use ``SFKRenderer`` to render text using FIGlet fonts discovered from the bundled resources. ANSI
-color utilities enable single‑color output or simple gradients across lines. The high‑level random
-rendering APIs let you pick a random font and color strategy, with optional seeding for
-deterministic output.
+- See the gallery: <doc:FontsGallery>
+- CLI: `swift-figlet-cli --list-fonts` and `--font <name>`
 
 ## Topics
 
-### Random Rendering
+### Gallery
 
-- <doc:RandomRendering>
+- <doc:FontsGallery>
 

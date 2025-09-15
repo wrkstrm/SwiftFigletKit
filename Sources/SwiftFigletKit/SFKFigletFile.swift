@@ -138,54 +138,53 @@ public struct SFKFigletFile {
   /// - Parameter fileURL: URL pointing to the file.
   /// - Returns: a`SFKFigletFile` object containing the file or `nil` if there was an error
   public static func from(url fileURL: URL) -> Self? {
-    do {
+    // Support plain `.flf` and gzip-compressed `.flf.gz` files.
+    let text: String
+    if fileURL.pathExtension.lowercased() == "gz" {
+      let inflated: Data? = decompressGzipExternal(fileURL.path)
+      guard let bytes = inflated else { return nil }
+      text = String(data: bytes, encoding: .utf8)
+        ?? String(data: bytes, encoding: .isoLatin1)
+        ?? ""
+      if text.isEmpty { return nil }
+    } else {
       // Try multiple encodings to handle comments with non‑ASCII characters.
-      let text: String
+      // Prefer UTF‑8; fall back to ISO Latin‑1 for older FIGlet files.
       if let s = try? String(contentsOf: fileURL, encoding: .utf8) {
-        text = s
-      } else if let s = try? String(contentsOf: fileURL, encoding: .ascii) {
         text = s
       } else if let s = try? String(contentsOf: fileURL, encoding: .isoLatin1) {
         text = s
       } else {
         return nil
       }
-
-      // Normalize line endings to LF so downstream parsing is deterministic.
-      let normalized = text
-        .replacingOccurrences(of: LineEnding.crlf, with: LineEnding.lf)
-        .replacingOccurrences(of: LineEnding.cr, with: LineEnding.lf)
-
-      // Split into lines; keep empty lines for vertical spacing.
-      let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
-
-      guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
-        // can't extract header
-        return nil
-      }
-      var headerLines: [Substring] = []
-      for i in 0...header.commentLines {
-        headerLines.append(lines[i])
-      }
-
-      // lines describing characters start after: 1 line header + header.commentLines
-      let characterLines = Array(lines.dropFirst(header.commentLines + 1))
-      return .init(header: header, headerLines: headerLines, lines: characterLines)
-    } catch {
-      // errors opening file
-      return nil
     }
 
     // Normalize line endings to LF so downstream parsing is deterministic.
-    let normalized = text
+    let normalized =
+      text
       .replacingOccurrences(of: LineEnding.crlf, with: LineEnding.lf)
       .replacingOccurrences(of: LineEnding.cr, with: LineEnding.lf)
 
     // Split into lines; keep empty lines for vertical spacing.
-    let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
+    let lines = normalized.split(
+      separator: "\n",
+      omittingEmptySubsequences: false
+    )
 
-    guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
-      // can't extract header
+    guard
+      let header = Header.createFigletFontHeader(
+        from: String(lines.first ?? "")
+      )
+    else {
+      #if DEBUG
+        fputs(
+          "[SwiftFigletKit] Invalid FIGlet header in file: \(fileURL.path)\n",
+          stderr
+        )
+        if let first = lines.first {
+          fputs("[SwiftFigletKit] First line: \(String(first))\n", stderr)
+        }
+      #endif
       return nil
     }
     var headerLines: [Substring] = []
@@ -195,7 +194,32 @@ public struct SFKFigletFile {
 
     // lines describing characters start after: 1 line header + header.commentLines
     let characterLines = Array(lines.dropFirst(header.commentLines + 1))
-    return .init(header: header, headerLines: headerLines, lines: characterLines)
+    return .init(
+      header: header,
+      headerLines: headerLines,
+      lines: characterLines
+    )
+  }
+
+  // no in-process gzip for portability here; use external gunzip
+
+  // Fallback decompressor using system gunzip
+  private static func decompressGzipExternal(_ path: String) -> Data? {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    process.arguments = ["gunzip", "-c", path]
+    let pipe = Pipe()
+    process.standardOutput = pipe
+    process.standardError = Pipe()
+    do {
+      try process.run()
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+      process.waitUntilExit()
+      guard process.terminationStatus == 0 else { return nil }
+      return data
+    } catch {
+      return nil
+    }
   }
 }
 

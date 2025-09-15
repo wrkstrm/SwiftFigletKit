@@ -69,13 +69,12 @@ import Testing
     #expect(figletFile?.lines.first == "$        $@")
   }
 
-  @Test func test_Given_BrokenFile_Should_ReturnNil() {
+  @Test func test_Given_BrokenFile_Should_Load_With_Latin1_Fallback() {
     let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/Wow.flf")
 
     let figletFile = SFKFigletFile.from(url: resourceURL)
-
-    #expect(figletFile == nil)
+    #expect(figletFile != nil)
   }
 }

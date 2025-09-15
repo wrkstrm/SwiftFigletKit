@@ -12,6 +12,8 @@ let package: Package = .init(
   products: [
     .library(name: "SwiftFigletKit", targets: ["SwiftFigletKit"]),
     .executable(name: "swift-figlet-cli", targets: ["SwiftFigletCLI"]),
+    .executable(name: "swift-figlet-doc-gen", targets: ["SwiftFigletDocGen"]),
+    .executable(name: "swift-figlet-dedupe", targets: ["SwiftFigletDedupe"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
@@ -28,6 +30,20 @@ let package: Package = .init(
       swiftSettings: [
         .define("SIMULATOR", .when(platforms: [.iOS], configuration: .debug))
       ],
+    ),
+    .executableTarget(
+      name: "SwiftFigletDedupe",
+      dependencies: [
+        "SwiftFigletKit",
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ]
+    ),
+    .executableTarget(
+      name: "SwiftFigletDocGen",
+      dependencies: [
+        "SwiftFigletKit",
+        .product(name: "ArgumentParser", package: "swift-argument-parser"),
+      ]
     ),
     .executableTarget(
       name: "SwiftFigletCLI",
