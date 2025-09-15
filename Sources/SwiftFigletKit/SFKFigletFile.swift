@@ -138,15 +138,41 @@ public struct SFKFigletFile {
   /// - Parameter fileURL: URL pointing to the file.
   /// - Returns: a`SFKFigletFile` object containing the file or `nil` if there was an error
   public static func from(url fileURL: URL) -> Self? {
-    // Try multiple encodings to handle comments with non‑ASCII characters.
-    let text: String
-    if let s = try? String(contentsOf: fileURL, encoding: .utf8) {
-      text = s
-    } else if let s = try? String(contentsOf: fileURL, encoding: .ascii) {
-      text = s
-    } else if let s = try? String(contentsOf: fileURL, encoding: .isoLatin1) {
-      text = s
-    } else {
+    do {
+      // Try multiple encodings to handle comments with non‑ASCII characters.
+      let text: String
+      if let s = try? String(contentsOf: fileURL, encoding: .utf8) {
+        text = s
+      } else if let s = try? String(contentsOf: fileURL, encoding: .ascii) {
+        text = s
+      } else if let s = try? String(contentsOf: fileURL, encoding: .isoLatin1) {
+        text = s
+      } else {
+        return nil
+      }
+
+      // Normalize line endings to LF so downstream parsing is deterministic.
+      let normalized = text
+        .replacingOccurrences(of: LineEnding.crlf, with: LineEnding.lf)
+        .replacingOccurrences(of: LineEnding.cr, with: LineEnding.lf)
+
+      // Split into lines; keep empty lines for vertical spacing.
+      let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
+
+      guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
+        // can't extract header
+        return nil
+      }
+      var headerLines: [Substring] = []
+      for i in 0...header.commentLines {
+        headerLines.append(lines[i])
+      }
+
+      // lines describing characters start after: 1 line header + header.commentLines
+      let characterLines = Array(lines.dropFirst(header.commentLines + 1))
+      return .init(header: header, headerLines: headerLines, lines: characterLines)
+    } catch {
+      // errors opening file
       return nil
     }
 

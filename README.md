@@ -21,8 +21,8 @@ CLI
 Docs
 
 - DocC: published on GitHub Pages at:
-  - https://wrkstrm.github.io/todo3/SwiftFigletKit/
-  - If publishing under a fork or different repo name, replace `wrkstrm/todo3` accordingly.
+  - https://wrkstrm.github.io/SwiftFigletKit/
+  - If publishing under a fork or different repo name, replace `wrkstrm/SwiftFigletKit` accordingly.
 
 Notes
 
