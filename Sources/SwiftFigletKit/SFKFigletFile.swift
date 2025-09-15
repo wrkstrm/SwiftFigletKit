@@ -69,8 +69,8 @@ public struct SFKFigletFile {
     public let fullLayout: Int
     public let codeTagCount: Int
 
-    /// Returns a Header from String passed. If can't create it because `from` does not follow
-    /// Figlet header format, returns `nil`
+    /// Returns a Header from the String passed. If it can't create it because `from` does not follow
+    /// the Figlet header format, returns `nil`
     /// - Parameter header: first line from a Figlet font file
     public static func createFigletFontHeader(from header: String) -> Self? {
       let headerParts = header.components(separatedBy: " ")
@@ -175,6 +175,27 @@ public struct SFKFigletFile {
       // errors opening file
       return nil
     }
+
+    // Normalize line endings to LF so downstream parsing is deterministic.
+    let normalized = text
+      .replacingOccurrences(of: LineEnding.crlf, with: LineEnding.lf)
+      .replacingOccurrences(of: LineEnding.cr, with: LineEnding.lf)
+
+    // Split into lines; keep empty lines for vertical spacing.
+    let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
+
+    guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
+      // can't extract header
+      return nil
+    }
+    var headerLines: [Substring] = []
+    for i in 0...header.commentLines {
+      headerLines.append(lines[i])
+    }
+
+    // lines describing characters start after: 1 line header + header.commentLines
+    let characterLines = Array(lines.dropFirst(header.commentLines + 1))
+    return .init(header: header, headerLines: headerLines, lines: characterLines)
   }
 }
 
