@@ -5,3 +5,9 @@
 xcuserdata/
 SwiftFiglet/SwiftFiglet/SwiftFiglet.xcodeproj/project.xcworkspace/contents.xcworkspacedata
 SwiftFiglet/SwiftFiglet/SwiftFiglet.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+
+# DoCC 
+	
+**/.docc-build/**
+**/.docc-derived/**
+**/.docc-publish/**
