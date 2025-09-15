@@ -69,8 +69,8 @@ public struct SFKFigletFile {
     public let fullLayout: Int
     public let codeTagCount: Int
 
-    /// Returns a Header from String passed. If can't create it because `from` does not follow
-    /// Figlet header format, returns `nil`
+    /// Returns a Header from the String passed. If it can't create it because `from` does not follow
+    /// the Figlet header format, returns `nil`
     /// - Parameter header: first line from a Figlet font file
     public static func createFigletFontHeader(from header: String) -> Self? {
       let headerParts = header.components(separatedBy: " ")
