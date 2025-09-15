@@ -71,7 +71,12 @@ struct SwiftFigletCLI: ParsableCommand {
   private static func performDoctor(verbose: Bool) throws {
     var ok = true
     let gunzipOK = checkTool(["gunzip", "--version"]) || checkTool(["gzip", "--version"])
-    if gunzipOK { print("[OK] gzip found (gunzip/gzip available)") } else { ok = false; print("[FAIL] gzip not found on PATH") }
+    if gunzipOK {
+      print("[OK] gzip found (gunzip/gzip available)")
+    } else {
+      ok = false
+      print("[FAIL] gzip not found on PATH")
+    }
     let urls = SFKFonts.all()
     if let gzURL = urls.first(where: { $0.lastPathComponent.lowercased().hasSuffix(".flf.gz") }) {
       if verbose { print("[INFO] Testing inflate: \(gzURL.lastPathComponent)") }
@@ -94,7 +99,11 @@ struct SwiftFigletCLI: ParsableCommand {
     p.arguments = args
     p.standardOutput = Pipe()
     p.standardError = Pipe()
-    do { try p.run(); p.waitUntilExit(); return p.terminationStatus == 0 } catch { return false }
+    do {
+      try p.run()
+      p.waitUntilExit()
+      return p.terminationStatus == 0
+    } catch { return false }
   }
 }
 
@@ -171,7 +180,8 @@ struct Doctor: ParsableCommand {
     var ok = true
 
     // 1) Check gunzip/gzip availability
-    let gunzipOK = Self.checkTool(["gunzip", "--version"]) || Self.checkTool(["gzip", "--version"])
+    let gunzipOK =
+      Self.checkTool(["gunzip", "--version"]) || Self.checkTool(["gzip", "--version"])
     if gunzipOK {
       print("[OK] gzip found (gunzip/gzip available)")
     } else {
@@ -200,11 +210,10 @@ struct Doctor: ParsableCommand {
       print("[FAIL] No .flf.gz resources found; ensure ResourcesGZ/Fonts is bundled")
     }
 
-    if ok {
-      if verbose { print("[OK] Environment ready for SwiftFigletKit on this platform") }
-    } else {
+    guard ok else {
       throw ValidationError("Doctor found issues (see above)")
     }
+    if verbose { print("[OK] Environment ready for SwiftFigletKit on this platform") }
   }
 
   private static func checkTool(_ args: [String]) -> Bool {
@@ -213,6 +222,10 @@ struct Doctor: ParsableCommand {
     p.arguments = args
     p.standardOutput = Pipe()
     p.standardError = Pipe()
-    do { try p.run(); p.waitUntilExit(); return p.terminationStatus == 0 } catch { return false }
+    do {
+      try p.run()
+      p.waitUntilExit()
+      return p.terminationStatus == 0
+    } catch { return false }
   }
 }

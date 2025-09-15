@@ -12,9 +12,11 @@ public enum SFKFonts {
     guard let root = Bundle.module.resourceURL?.appendingPathComponent("Fonts", isDirectory: true)
     else { return [] }
     let fm = FileManager.default
-    guard let items = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else { return [] }
+    guard let items = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil) else {
+      return []
+    }
     // Support both plain .flf and compressed .flf.gz; prefer .flf.gz when both exist for same name.
-    var best: [String: URL] = [:] // baseName -> URL
+    var best: [String: URL] = [:]  // baseName -> URL
     for url in items {
       let ext = url.pathExtension.lowercased()
       if ext == "flf" {
@@ -23,10 +25,13 @@ public enum SFKFonts {
       } else if ext == "gz", url.deletingPathExtension().pathExtension.lowercased() == "flf" {
         // double extension .flf.gz
         let base = url.deletingPathExtension().deletingPathExtension().lastPathComponent
-        best[base] = url // prefer gz
+        best[base] = url  // prefer gz
       }
     }
-    return best.values.sorted { $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent) == .orderedAscending }
+    return best.values.sorted {
+      $0.lastPathComponent.localizedCaseInsensitiveCompare($1.lastPathComponent)
+        == .orderedAscending
+    }
   }
 
   /// Lists all bundled font display names (without extension), sorted A–Z.
@@ -34,11 +39,10 @@ public enum SFKFonts {
     all()
       .map {
         let last = $0.lastPathComponent
-        if last.lowercased().hasSuffix(".flf.gz") {
-          return $0.deletingPathExtension().deletingPathExtension().lastPathComponent
-        } else {
+        guard last.lowercased().hasSuffix(".flf.gz") else {
           return $0.deletingPathExtension().lastPathComponent
         }
+        return $0.deletingPathExtension().deletingPathExtension().lastPathComponent
       }
       .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
   }

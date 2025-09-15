@@ -21,7 +21,7 @@ CLI
 Docs
 
 - DocC: published on GitHub Pages at:
-  - https://wrkstrm.github.io/SwiftFigletKit/
+  - <https://wrkstrm.github.io/SwiftFigletKit/>
   - If publishing under a fork or different repo name, replace `wrkstrm/SwiftFigletKit` accordingly.
 
 Packaging and environment

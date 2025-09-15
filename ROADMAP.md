@@ -50,4 +50,3 @@ This roadmap tracks SwiftFigletKit work: fonts lifecycle, packaging, docs, and C
 - Package fonts (editable): `Sources/SwiftFigletKit/Fonts/{core,duplicates}`
 - Bundled resources (shipping): `Sources/SwiftFigletKit/ResourcesGZ/Fonts/*.flf.gz`
 - DocC catalog: `Sources/SwiftFigletKit/SwiftFigletKit.docc/`
-

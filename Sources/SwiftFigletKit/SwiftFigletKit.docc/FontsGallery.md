@@ -2059,4 +2059,3 @@ This page is generated. Sample text: `Figlet`
 ```
 (render failed)
 ```
-

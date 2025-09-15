@@ -1,27 +1,27 @@
 # Random Rendering
 
-Learn how to render banners with random fonts and colors using ``SwiftFigletKit``.
+Learn how to render banners with random fonts and colors using `SwiftFigletKit`.
 
 ## Overview
 
-The high‑level APIs in ``SFKRenderer`` combine font selection and color strategies into a single
+The high‑level APIs in `SFKRenderer` combine font selection and color strategies into a single
 call. You can:
 
-- Choose fonts by name or randomly (with exclusions) using ``SFKFontStrategy``.
-- Colorize with single or gradient styles, or mix randomly using ``SFKColorStrategy``.
-- Provide a seed for deterministic output via ``SFKRenderOptions``.
+- Choose fonts by name or randomly (with exclusions) using `SFKFontStrategy`.
+- Colorize with single or gradient styles, or mix randomly using `SFKColorStrategy`.
+- Provide a seed for deterministic output via `SFKRenderOptions`.
 
 When FIGlet fonts aren’t available, the APIs return a plain ANSI‑colored line so your app can still
 show a banner without failing.
 
 ## Choose a Strategy
 
-- ``SFKFontStrategy``: ``SFKFontStrategy/named(_:)`` or ``SFKFontStrategy/random(excluding:)``
-- ``SFKColorStrategy``: ``SFKColorStrategy/single(_:)``,
-  ``SFKColorStrategy/singleRandom(palette:)``, ``SFKColorStrategy/gradient(palette:)``,
-  ``SFKColorStrategy/gradientRandom(palette:shuffle:)``,
-  ``SFKColorStrategy/mixedRandom(gradientProbability:singlePalette:gradientPalette:)``
-- ``SFKRenderOptions``: `prefix`, `suffix`, `newline`, `seed`, `forceColor`, `disableColorInXcode`
+- `SFKFontStrategy`: `SFKFontStrategy/named(_:)` or `SFKFontStrategy/random(excluding:)`
+- `SFKColorStrategy`: `SFKColorStrategy/single(_:)`,
+  `SFKColorStrategy/singleRandom(palette:)`, `SFKColorStrategy/gradient(palette:)`,
+  `SFKColorStrategy/gradientRandom(palette:shuffle:)`,
+  `SFKColorStrategy/mixedRandom(gradientProbability:singlePalette:gradientPalette:)`
+- `SFKRenderOptions`: `prefix`, `suffix`, `newline`, `seed`, `forceColor`, `disableColorInXcode`
 
 ## Render with a Random Font
 
@@ -58,4 +58,3 @@ let out = SFKRenderer.renderRandomBanner(
 
 If FIGlet fonts are unavailable, the functions return a single ANSI‑colored line. Gradient
 strategies degrade to a single color (first entry in the chosen palette).
-

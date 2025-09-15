@@ -143,7 +143,8 @@ public struct SFKFigletFile {
     if fileURL.pathExtension.lowercased() == "gz" {
       let inflated: Data? = decompressGzipExternal(fileURL.path)
       guard let bytes = inflated else { return nil }
-      text = String(data: bytes, encoding: .utf8)
+      text =
+        String(data: bytes, encoding: .utf8)
         ?? String(data: bytes, encoding: .isoLatin1)
         ?? ""
       if text.isEmpty { return nil }
@@ -177,13 +178,13 @@ public struct SFKFigletFile {
       )
     else {
       #if DEBUG
-        fputs(
-          "[SwiftFigletKit] Invalid FIGlet header in file: \(fileURL.path)\n",
-          stderr
-        )
-        if let first = lines.first {
-          fputs("[SwiftFigletKit] First line: \(String(first))\n", stderr)
-        }
+      fputs(
+        "[SwiftFigletKit] Invalid FIGlet header in file: \(fileURL.path)\n",
+        stderr
+      )
+      if let first = lines.first {
+        fputs("[SwiftFigletKit] First line: \(String(first))\n", stderr)
+      }
       #endif
       return nil
     }

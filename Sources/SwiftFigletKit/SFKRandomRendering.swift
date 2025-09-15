@@ -37,7 +37,7 @@ public struct SFKRenderOptions: Sendable {
   /// When true, appends a trailing newline when falling back to plain text.
   public var newline: Bool = false
   /// Reserved for future use (no wrapping currently performed).
-  public var wrapWidth: Int? = nil // reserved for future use
+  public var wrapWidth: Int? = nil  // reserved for future use
   /// Optional seed for deterministic font/color selection across runs.
   public var seed: UInt64? = nil
   /// Force ANSI color even in Xcode consoles.
@@ -78,9 +78,9 @@ public enum SFKPalettes {
 
 struct SFKSeededLCG: RandomNumberGenerator {
   private var state: UInt64
-  init(seed: UInt64) { self.state = seed &* 6364136223846793005 &+ 1 }
+  init(seed: UInt64) { self.state = seed &* 6_364_136_223_846_793_005 &+ 1 }
   mutating func next() -> UInt64 {
-    state = 2862933555777941757 &* state &+ 3037000493
+    state = 2_862_933_555_777_941_757 &* state &+ 3_037_000_493
     return state
   }
 }
@@ -126,12 +126,11 @@ extension SFKRenderer {
       case .random(let excluding):
         let all = SFKFonts.listNames().filter { !excluding.contains($0) }
         guard !all.isEmpty else { return SFKFonts.randomURL() }
-        if var rr = rng {
-          let idx = Int(rr.next() % UInt64(all.count))
-          return SFKFonts.find(all[idx])
-        } else {
+        guard var rr = rng else {
           return SFKFonts.find(all.randomElement() ?? "")
         }
+        let idx = Int(rr.next() % UInt64(all.count))
+        return SFKFonts.find(all[idx])
       }
     }()
 
@@ -144,7 +143,11 @@ extension SFKRenderer {
     // Resolve color plan and render
     switch color {
     case .single(let c):
-      if let fig = figlet { return SFKRenderer.render(text: combined, using: fig, color: c, forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode) }
+      if let fig = figlet {
+        return SFKRenderer.render(
+          text: combined, using: fig, color: c, forceColor: options.forceColor,
+          disableColorInXcode: options.disableColorInXcode)
+      }
       // Fallback: plain line with ANSI color
       return SFKANSI.wrap(combined + (options.newline ? "\n" : ""), color: toANSI(c))
 
@@ -154,12 +157,18 @@ extension SFKRenderer {
         if var rr = rng { return paletteToUse[Int(rr.next() % UInt64(paletteToUse.count))] }
         return paletteToUse.randomElement() ?? .white
       }()
-      if let fig = figlet { return SFKRenderer.render(text: combined, using: fig, color: color, forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode) }
+      if let fig = figlet {
+        return SFKRenderer.render(
+          text: combined, using: fig, color: color, forceColor: options.forceColor,
+          disableColorInXcode: options.disableColorInXcode)
+      }
       return SFKANSI.wrap(combined + (options.newline ? "\n" : ""), color: toANSI(color))
 
     case .gradient(let palette):
       if let fig = figlet {
-        let s = SFKRenderer.renderGradientLines(text: combined, using: fig, palette: palette, randomizePalette: false, forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode)
+        let s = SFKRenderer.renderGradientLines(
+          text: combined, using: fig, palette: palette, randomizePalette: false,
+          forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode)
         return options.newline ? s : s
       }
       // Fallback: map gradient to first color
@@ -180,7 +189,9 @@ extension SFKRenderer {
         }
       }
       if let fig = figlet {
-        let s = SFKRenderer.renderGradientLines(text: combined, using: fig, palette: pal, randomizePalette: false, forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode)
+        let s = SFKRenderer.renderGradientLines(
+          text: combined, using: fig, palette: pal, randomizePalette: false,
+          forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode)
         return options.newline ? s : s
       }
       let c = pal.first ?? .white
@@ -192,11 +203,13 @@ extension SFKRenderer {
         if var rr = rng { return (Double(rr.next() % 1_000_000) / 1_000_000.0) < threshold }
         return Double.random(in: 0...1) < threshold
       }()
-      if chooseGradient {
-        return render(text: text, font: font, color: .gradientRandom(palette: gradPal, shuffle: true), options: options)
-      } else {
-        return render(text: text, font: font, color: .singleRandom(palette: singlePal), options: options)
+      guard chooseGradient else {
+        return render(
+          text: text, font: font, color: .singleRandom(palette: singlePal), options: options)
       }
+      return render(
+        text: text, font: font, color: .gradientRandom(palette: gradPal, shuffle: true),
+        options: options)
     }
   }
 

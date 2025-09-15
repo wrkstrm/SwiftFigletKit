@@ -1,4 +1,4 @@
-# ``SwiftFigletKit``
+# `SwiftFigletKit`
 
 Render ASCII art banners using bundled FIGlet fonts, with simple color helpers and a small CLI.
 
@@ -10,4 +10,3 @@ Render ASCII art banners using bundled FIGlet fonts, with simple color helpers a
 ### Gallery
 
 - <doc:FontsGallery>
-

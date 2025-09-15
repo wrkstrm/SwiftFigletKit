@@ -6,13 +6,18 @@ import SwiftFigletKit
 struct SwiftFigletDedupe: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-dedupe",
-    abstract: "Move duplicate font variants (spaces/uppercase names) to docs/Fonts/duplicates, keeping a simple canonical file per group"
+    abstract:
+      "Move duplicate font variants (spaces/uppercase names) to docs/Fonts/duplicates, keeping a simple canonical file per group"
   )
 
-  @Option(name: .customLong("root"), help: "Path to Fonts directory (default: ./Sources/SwiftFigletKit/Resources/Fonts)")
+  @Option(
+    name: .customLong("root"),
+    help: "Path to Fonts directory (default: ./Sources/SwiftFigletKit/Resources/Fonts)")
   var rootPath: String?
 
-  @Option(name: .customLong("dest"), help: "Destination directory for moved duplicates (default: docs/Fonts/duplicates)")
+  @Option(
+    name: .customLong("dest"),
+    help: "Destination directory for moved duplicates (default: docs/Fonts/duplicates)")
   var destPath: String = "docs/Fonts/duplicates"
 
   @Flag(name: .customLong("apply"), help: "Apply moves (otherwise dry-run)")
@@ -21,22 +26,26 @@ struct SwiftFigletDedupe: ParsableCommand {
   mutating func run() throws {
     let fm = FileManager.default
     let cwd = URL(fileURLWithPath: fm.currentDirectoryPath)
-    let defaultRoot = cwd
+    let defaultRoot =
+      cwd
       .appendingPathComponent("Sources/SwiftFigletKit/Resources/Fonts", isDirectory: true)
     let root = URL(fileURLWithPath: rootPath ?? defaultRoot.path, isDirectory: true)
     let dest = URL(fileURLWithPath: destPath, isDirectory: true, relativeTo: cwd)
 
-    guard let items = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
-      .filter({ $0.pathExtension.lowercased() == "flf" })
+    guard
+      let items = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
+        .filter({ $0.pathExtension.lowercased() == "flf" })
     else {
       throw ValidationError("Unable to list fonts at \(root.path)")
     }
 
     struct Entry {
       let url: URL
-      let name: String // filename without extension
+      let name: String  // filename without extension
     }
-    var entries: [Entry] = items.map { .init(url: $0, name: $0.deletingPathExtension().lastPathComponent) }
+    var entries: [Entry] = items.map {
+      .init(url: $0, name: $0.deletingPathExtension().lastPathComponent)
+    }
 
     // Group by content hash (normalized newlines, UTF-8/Latin-1 decode)
     var groups: [UInt64: [Entry]] = [:]
@@ -77,7 +86,8 @@ struct SwiftFigletDedupe: ParsableCommand {
 
     try fm.createDirectory(at: dest, withIntermediateDirectories: true)
     for m in plannedMoves {
-      try fm.createDirectory(at: m.to.deletingLastPathComponent(), withIntermediateDirectories: true)
+      try fm.createDirectory(
+        at: m.to.deletingLastPathComponent(), withIntermediateDirectories: true)
       // Move (overwrite if exists)
       if fm.fileExists(atPath: m.to.path) { try fm.removeItem(at: m.to) }
       try fm.moveItem(at: m.from, to: m.to)
@@ -95,14 +105,18 @@ struct SwiftFigletDedupe: ParsableCommand {
       if f.contains("-") { score += 5 }
       if f.contains("_") { score += 2 }
       score += f.count
-      if score < bestScore { best = f; bestScore = score }
+      if score < bestScore {
+        best = f
+        bestScore = score
+      }
     }
     return best
   }
 
   private func normalizeLineEndings(data: Data) -> Data {
     if let s = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) {
-      let n = s.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
+      let n = s.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(
+        of: "\r", with: "\n")
       return Data(n.utf8)
     }
     return data
@@ -111,8 +125,10 @@ struct SwiftFigletDedupe: ParsableCommand {
   private func fnv1a64(data: Data) -> UInt64 {
     let prime: UInt64 = 1_099_511_628_211
     var hash: UInt64 = 1_469_598_103_934_665_603
-    for b in data { hash ^= UInt64(b); hash &*= prime }
+    for b in data {
+      hash ^= UInt64(b)
+      hash &*= prime
+    }
     return hash
   }
 }
-

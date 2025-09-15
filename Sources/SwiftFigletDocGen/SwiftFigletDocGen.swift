@@ -134,15 +134,21 @@ struct SwiftFigletDocGen: ParsableCommand {
       let out = URL(fileURLWithPath: path)
       let enc = JSONEncoder()
       enc.outputFormatting = [.prettyPrinted, .sortedKeys]
-      struct DeletePlan: Codable { let hash: String; let keepFile: String; let deleteFiles: [String] }
+      struct DeletePlan: Codable {
+        let hash: String
+        let keepFile: String
+        let deleteFiles: [String]
+      }
       var plans: [DeletePlan] = []
       for (k, entries) in hashGroups.sorted(by: { $0.key < $1.key }) where entries.count > 1 {
         let files = entries.map { $0.url.lastPathComponent }
         let keep = choosePreferred(files: files)
-        let deletes = files
+        let deletes =
+          files
           .filter { $0 != keep }
           .sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }
-        plans.append(.init(hash: String(format: "%016llx", k), keepFile: keep, deleteFiles: deletes))
+        plans.append(
+          .init(hash: String(format: "%016llx", k), keepFile: keep, deleteFiles: deletes))
       }
       try enc.encode(plans).write(to: out)
     }
@@ -159,7 +165,10 @@ struct SwiftFigletDocGen: ParsableCommand {
       if f.rangeOfCharacter(from: uppercase) != nil { score += 20 }
       if f.contains("-") { score += 5 }
       score += f.count / 10
-      if score > bestScore { bestScore = score; bestFile = f }
+      if score > bestScore {
+        bestScore = score
+        bestFile = f
+      }
     }
     return bestFile
   }
@@ -189,11 +198,17 @@ struct SwiftFigletDocGen: ParsableCommand {
 
   // Heuristic extractor for human-readable font name from comment lines
   private func extractInFileName(from url: URL) -> String? {
-    guard let text = (try? String(contentsOf: url, encoding: .utf8))
-      ?? (try? String(contentsOf: url, encoding: .isoLatin1))
+    guard
+      let text = (try? String(contentsOf: url, encoding: .utf8))
+        ?? (try? String(contentsOf: url, encoding: .isoLatin1))
     else { return nil }
-    let normalized = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(of: "\r", with: "\n")
-    guard let firstLine = normalized.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: false).first else { return nil }
+    let normalized = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(
+      of: "\r", with: "\n")
+    guard
+      let firstLine = normalized.split(
+        separator: "\n", maxSplits: 1, omittingEmptySubsequences: false
+      ).first
+    else { return nil }
     let parts = firstLine.split(separator: " ")
     let commentCount: Int = (parts.count > 5) ? Int(parts[5]) ?? 0 : 0
     guard commentCount > 0 else { return nil }
@@ -206,29 +221,42 @@ struct SwiftFigletDocGen: ParsableCommand {
     // Regex-like checks using String operations (avoid NSRegularExpression for simplicity)
     func match(prefixes: [String], in s: String) -> String? {
       let lower = s.trimmingCharacters(in: .whitespaces)
-      for p in prefixes {
-        if lower.lowercased().hasPrefix(p) {
-          let value = String(lower.dropFirst(p.count)).trimmingCharacters(in: .whitespaces)
-          if !value.isEmpty, !value.lowercased().contains("version"), !value.lowercased().contains("author"), !value.lowercased().contains("date") {
-            return value
-          }
+      for p in prefixes where lower.lowercased().hasPrefix(p) {
+        let value = String(lower.dropFirst(p.count)).trimmingCharacters(in: .whitespaces)
+        if !value.isEmpty, !value.lowercased().contains("version"),
+          !value.lowercased().contains("author"), !value.lowercased().contains("date")
+        {
+          return value
         }
       }
       return nil
     }
 
     for c in comments {
-      if let v = match(prefixes: ["font name:", "font:", "figlet font:", "figletfont:", "font-name:", "font=", "font name =", "font:"] , in: c) { return v }
+      if let v = match(
+        prefixes: [
+          "font name:", "font:", "figlet font:", "figletfont:", "font-name:", "font=",
+          "font name =", "font:",
+        ], in: c)
+      {
+        return v
+      }
     }
     for c in comments {
-      if let v = match(prefixes: ["name:", "title:", "name =", "title =", "name-", "title-"] , in: c) { return v }
+      if let v = match(
+        prefixes: ["name:", "title:", "name =", "title =", "name-", "title-"], in: c)
+      {
+        return v
+      }
     }
     // Fallback: first non-empty that doesn't look like metadata
     for c in comments {
       let t = c.trimmingCharacters(in: .whitespaces)
       if t.isEmpty { continue }
       let l = t.lowercased()
-      if l.contains("http") || l.contains("www.") || l.contains("copyright") || l.contains("author") || l.contains("version") || l.contains("date") {
+      if l.contains("http") || l.contains("www.") || l.contains("copyright") || l.contains("author")
+        || l.contains("version") || l.contains("date")
+      {
         continue
       }
       return t
