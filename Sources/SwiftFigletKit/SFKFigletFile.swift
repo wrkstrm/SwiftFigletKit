@@ -20,9 +20,11 @@
 import Foundation
 
 public struct SFKFigletFile {
-  private enum CRLF: Character {
-    case windowsStyle = "\r\n"
-    case unixStyle = "\n"
+  // Normalization helpers for line endings.
+  private enum LineEnding {
+    static let lf = "\n"
+    static let cr = "\r"
+    static let crlf = "\r\n"
   }
 
   public enum PrintDirection: Int {
@@ -32,15 +34,15 @@ public struct SFKFigletFile {
 
   /**
     Figlet file header
-
+  
     ```
     From: http://www.jave.de/docs/figfont.txt
-
+  
     THE HEADER LINE
-
+  
     The header line gives information about the FIGfont.  Here is an example
     showing the names of all parameters:
-
+  
               flf2a$ 6 5 20 15 3 0 143 229    NOTE: The first five characters in
                 |  | | | |  |  | |  |   |     the entire file must be "flf2a".
                /  /  | | |  |  | |  |   \
@@ -49,7 +51,7 @@ public struct SFKFigletFile {
              Height  /   |  |   \  Print_Direction
              Baseline   /    \   Comment_Lines
               Max_Length      Old_Layout*
-
+  
       * The two layout parameters are closely related and fairly complex.
           (See "INTERPRETATION OF LAYOUT PARAMETERS".)
     ```
@@ -67,8 +69,8 @@ public struct SFKFigletFile {
     public let fullLayout: Int
     public let codeTagCount: Int
 
-    /// Returns a Header from String passed. If can't create it bacause `from` does not follow
-    /// Figlet header format, returns `nil`
+    /// Returns a Header from the String passed. If it can't create it because `from` does not follow
+    /// the Figlet header format, returns `nil`
     /// - Parameter header: first line from a Figlet font file
     public static func createFigletFontHeader(from header: String) -> Self? {
       let headerParts = header.components(separatedBy: " ")
@@ -103,7 +105,7 @@ public struct SFKFigletFile {
         commentLines: commentLines,
         commentDirection: commentDirection,
         fullLayout: fullLayout,
-        codeTagCount: codeTagCount
+        codeTagCount: codeTagCount,
       )
     }
   }
@@ -115,10 +117,11 @@ public struct SFKFigletFile {
 
   /// Returns line terminator for characters, usually `@` or `#`
   public func characterLineTerminator() -> Character {
-    // line terminator for characters
-    let terminator: Character = lines[header.commentLines].last ?? "@"
-
-    return terminator
+    // Determine the terminator from the first character line.
+    guard var line = lines.first else { return "@" }
+    // If the line ends with CR, ignore it when picking the terminator.
+    if line.last == "\r" { line = line.dropLast() }
+    return line.last ?? "@"
   }
 
   /// Loads a Figlet file `.flf` from disc
@@ -135,43 +138,38 @@ public struct SFKFigletFile {
   /// - Parameter fileURL: URL pointing to the file.
   /// - Returns: a`SFKFigletFile` object containing the file or `nil` if there was an error
   public static func from(url fileURL: URL) -> Self? {
-    do {
-      // opening file with ASCII encoding, Figlet files are ASCII files
-      let text = try String(contentsOf: fileURL, encoding: .ascii)
-
-      // we try to split file in lines using line terminator Unix Style
-      // omittingEmptySubsequences is `false` to not lose empty lines added
-      // as vertical spaces
-      var lines = text.split(separator: CRLF.unixStyle.rawValue, omittingEmptySubsequences: false)
-      var finalLines: [Substring] = []
-      for line in lines {
-        // we try to split each line using Windows line terminator style
-        // some font files have mixed line endings
-        let splittedLine = line.split(
-          separator: CRLF.windowsStyle.rawValue, omittingEmptySubsequences: false
-        )
-        for sl in splittedLine {
-          finalLines.append(sl)
-        }
-      }
-      lines = finalLines
-
-      guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
-        // can't extract header
-        return nil
-      }
-      var headerLines: [Substring] = []
-      for i in 0...header.commentLines {
-        headerLines.append(lines[i])
-      }
-
-      // lines describing characters start after: 1 line header + header.commentLines
-      let characterLines = Array(lines.dropFirst(header.commentLines + 1))
-      return .init(header: header, headerLines: headerLines, lines: characterLines)
-    } catch {
-      // errors opening file
+    // Try multiple encodings to handle comments with non‑ASCII characters.
+    let text: String
+    if let s = try? String(contentsOf: fileURL, encoding: .utf8) {
+      text = s
+    } else if let s = try? String(contentsOf: fileURL, encoding: .ascii) {
+      text = s
+    } else if let s = try? String(contentsOf: fileURL, encoding: .isoLatin1) {
+      text = s
+    } else {
       return nil
     }
+
+    // Normalize line endings to LF so downstream parsing is deterministic.
+    let normalized = text
+      .replacingOccurrences(of: LineEnding.crlf, with: LineEnding.lf)
+      .replacingOccurrences(of: LineEnding.cr, with: LineEnding.lf)
+
+    // Split into lines; keep empty lines for vertical spacing.
+    let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
+
+    guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
+      // can't extract header
+      return nil
+    }
+    var headerLines: [Substring] = []
+    for i in 0...header.commentLines {
+      headerLines.append(lines[i])
+    }
+
+    // lines describing characters start after: 1 line header + header.commentLines
+    let characterLines = Array(lines.dropFirst(header.commentLines + 1))
+    return .init(header: header, headerLines: headerLines, lines: characterLines)
   }
 }
 

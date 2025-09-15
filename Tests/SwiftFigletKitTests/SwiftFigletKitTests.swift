@@ -1,9 +1,9 @@
-import XCTest
+import Testing
 
 @testable import SwiftFigletKit
 
-final class SwiftFigletKitTests: XCTestCase {
-  func testCreatingACharSetsHeight() {
+@Suite struct SwiftFigletKitTests {
+  @Test func testCreatingACharSetsHeight() {
     let sut = SFKChar(charLines: [
       "  #  $@",
       " ##  $@",
@@ -13,10 +13,6 @@ final class SwiftFigletKitTests: XCTestCase {
       "  #  $@",
       "#####$@",
     ])
-    XCTAssertEqual(sut.height, 7)
+    #expect(sut.height == 7)
   }
-
-  static var allTests = [
-    ("testCreatingACharSetsHeight", testCreatingACharSetsHeight)
-  ]
 }
