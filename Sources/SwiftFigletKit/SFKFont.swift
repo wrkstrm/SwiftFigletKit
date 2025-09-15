@@ -92,21 +92,25 @@ extension SFKFont {
 
     var nextASCIIChar = 32  // 32 is Space
 
-    //        let separator = figletFile.characterLineTerminator()
+    let terminator: Character = figletFile.characterLineTerminator()
 
     var arrayLines: [String] = []
 
     for line in figletFile.lines {
-      let fontLine: Substring =
-        if arrayLines.count < font.height - 1 {
-          // remove last @
-          line.dropLast()
-        } else {
-          // remove last @@
-          line.dropLast().dropLast()
-        }
+      // Trim trailing CR first (when fonts used CRLF originally)
+      var trimmed = line
+      if trimmed.last == "\r" { trimmed = trimmed.dropLast() }
+
+      // Remove the line terminator: on the last line of a character it's doubled.
+      let neededDrops = (arrayLines.count < font.height - 1) ? 1 : 2
+      var drops = neededDrops
+      while drops > 0, let last = trimmed.last, last == terminator {
+        trimmed = trimmed.dropLast()
+        drops -= 1
+      }
+
       arrayLines.append(
-        String(fontLine.replacingOccurrences(of: String(figletFile.header.hardBlank), with: " ")))
+        String(trimmed.replacingOccurrences(of: String(figletFile.header.hardBlank), with: " ")))
 
       // last line
       if arrayLines.count == font.height {

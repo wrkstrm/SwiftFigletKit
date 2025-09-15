@@ -20,9 +20,11 @@
 import Foundation
 
 public struct SFKFigletFile {
-  private enum CRLF: Character {
-    case windowsStyle = "\r\n"
-    case unixStyle = "\n"
+  // Normalization helpers for line endings.
+  private enum LineEnding {
+    static let lf = "\n"
+    static let cr = "\r"
+    static let crlf = "\r\n"
   }
 
   public enum PrintDirection: Int {
@@ -115,10 +117,11 @@ public struct SFKFigletFile {
 
   /// Returns line terminator for characters, usually `@` or `#`
   public func characterLineTerminator() -> Character {
-    // line terminator for characters
-    let terminator: Character = lines[header.commentLines].last ?? "@"
-
-    return terminator
+    // Determine the terminator from the first character line.
+    guard var line = lines.first else { return "@" }
+    // If the line ends with CR, ignore it when picking the terminator.
+    if line.last == "\r" { line = line.dropLast() }
+    return line.last ?? "@"
   }
 
   /// Loads a Figlet file `.flf` from disc
@@ -136,25 +139,25 @@ public struct SFKFigletFile {
   /// - Returns: a`SFKFigletFile` object containing the file or `nil` if there was an error
   public static func from(url fileURL: URL) -> Self? {
     do {
-      // opening file with ASCII encoding, Figlet files are ASCII files
-      let text = try String(contentsOf: fileURL, encoding: .ascii)
-
-      // we try to split file in lines using line terminator Unix Style
-      // omittingEmptySubsequences is `false` to not lose empty lines added
-      // as vertical spaces
-      var lines = text.split(separator: CRLF.unixStyle.rawValue, omittingEmptySubsequences: false)
-      var finalLines: [Substring] = []
-      for line in lines {
-        // we try to split each line using Windows line terminator style
-        // some font files have mixed line endings
-        let splittedLine = line.split(
-          separator: CRLF.windowsStyle.rawValue, omittingEmptySubsequences: false,
-        )
-        for sl in splittedLine {
-          finalLines.append(sl)
-        }
+      // Try multiple encodings to handle comments with non‑ASCII characters.
+      let text: String
+      if let s = try? String(contentsOf: fileURL, encoding: .utf8) {
+        text = s
+      } else if let s = try? String(contentsOf: fileURL, encoding: .ascii) {
+        text = s
+      } else if let s = try? String(contentsOf: fileURL, encoding: .isoLatin1) {
+        text = s
+      } else {
+        return nil
       }
-      lines = finalLines
+
+      // Normalize line endings to LF so downstream parsing is deterministic.
+      let normalized = text
+        .replacingOccurrences(of: LineEnding.crlf, with: LineEnding.lf)
+        .replacingOccurrences(of: LineEnding.cr, with: LineEnding.lf)
+
+      // Split into lines; keep empty lines for vertical spacing.
+      let lines = normalized.split(separator: "\n", omittingEmptySubsequences: false)
 
       guard let header = Header.createFigletFontHeader(from: String(lines.first ?? "")) else {
         // can't extract header
