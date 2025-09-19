@@ -6,38 +6,38 @@ import SwiftFigletKit
 struct SwiftFigletDocGen: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-doc-gen",
-    abstract: "Generate a DocC Fonts Gallery article for SwiftFigletKit"
+    abstract: "Generate a DocC Fonts Gallery article for SwiftFigletKit",
   )
 
   @Option(
     name: .customLong("output"),
-    help: "Output Markdown path for FontsGallery.md"
+    help: "Output Markdown path for FontsGallery.md",
   )
   var outputPath: String
 
   @Option(
     name: .customLong("text"),
-    help: "Sample text to render for each font (default: Figlet)"
+    help: "Sample text to render for each font (default: Figlet)",
   )
   var sampleText: String = "Figlet"
 
   @Flag(
     name: .customLong("deduplicate"),
-    help: "Collapse duplicate fonts (identical .flf content)"
+    help: "Collapse duplicate fonts (identical .flf content)",
   )
   var deduplicate: Bool = false
 
   @Option(
     name: .customLong("aliases-report"),
     help:
-      "Optional path to write a JSON alias report (groups of identical fonts)"
+      "Optional path to write a JSON alias report (groups of identical fonts)",
   )
   var aliasesReportPath: String?
 
   @Option(
     name: .customLong("emit-delete-plan"),
     help:
-      "Optional path to write a JSON delete plan with {hash, keepFile, deleteFiles}"
+      "Optional path to write a JSON delete plan with {hash, keepFile, deleteFiles}",
   )
   var emitDeletePlanPath: String?
 
@@ -48,7 +48,7 @@ struct SwiftFigletDocGen: ParsableCommand {
     // Ensure parent directory exists
     try fm.createDirectory(
       at: outURL.deletingLastPathComponent(),
-      withIntermediateDirectories: true
+      withIntermediateDirectories: true,
     )
 
     // Collect fonts
@@ -114,15 +114,15 @@ struct SwiftFigletDocGen: ParsableCommand {
       let groups: [Group] =
         hashGroups
         .filter { $0.value.count > 1 }
-        .map { (k, v) in
+        .map { k, v in
           Group(
             hash: String(format: "%016llx", k),
-            names: v.map { $0.name }.sorted {
+            names: v.map(\.name).sorted {
               $0.localizedCaseInsensitiveCompare($1) == .orderedAscending
             },
-            files: v.map { $0.url.lastPathComponent }.sorted {
+            files: v.map(\.url.lastPathComponent).sorted {
               $0.localizedCaseInsensitiveCompare($1) == .orderedAscending
-            }
+            },
           )
         }
         .sorted { $0.hash < $1.hash }
@@ -141,7 +141,7 @@ struct SwiftFigletDocGen: ParsableCommand {
       }
       var plans: [DeletePlan] = []
       for (k, entries) in hashGroups.sorted(by: { $0.key < $1.key }) where entries.count > 1 {
-        let files = entries.map { $0.url.lastPathComponent }
+        let files = entries.map(\.url.lastPathComponent)
         let keep = choosePreferred(files: files)
         let deletes =
           files
@@ -203,10 +203,11 @@ struct SwiftFigletDocGen: ParsableCommand {
         ?? (try? String(contentsOf: url, encoding: .isoLatin1))
     else { return nil }
     let normalized = text.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(
-      of: "\r", with: "\n")
+      of: "\r", with: "\n",
+    )
     guard
       let firstLine = normalized.split(
-        separator: "\n", maxSplits: 1, omittingEmptySubsequences: false
+        separator: "\n", maxSplits: 1, omittingEmptySubsequences: false,
       ).first
     else { return nil }
     let parts = firstLine.split(separator: " ")
@@ -237,15 +238,15 @@ struct SwiftFigletDocGen: ParsableCommand {
         prefixes: [
           "font name:", "font:", "figlet font:", "figletfont:", "font-name:", "font=",
           "font name =", "font:",
-        ], in: c)
-      {
+        ], in: c,
+      ) {
         return v
       }
     }
     for c in comments {
       if let v = match(
-        prefixes: ["name:", "title:", "name =", "title =", "name-", "title-"], in: c)
-      {
+        prefixes: ["name:", "title:", "name =", "title =", "name-", "title-"], in: c,
+      ) {
         return v
       }
     }

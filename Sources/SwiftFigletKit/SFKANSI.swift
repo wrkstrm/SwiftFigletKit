@@ -16,27 +16,26 @@ public enum SFKANSI {
     _ text: String,
     color: Color,
     force: Bool = false,
-    disableInXcode: Bool = true
+    disableInXcode: Bool = true,
   ) -> String {
     if color == .none { return text }
-    if disableInXcode && !force
-      && ProcessInfo.processInfo.environment["__XCODE_BUILT_PRODUCTS_DIR_PATHS"] != nil
+    if disableInXcode, !force,
+      ProcessInfo.processInfo.environment["__XCODE_BUILT_PRODUCTS_DIR_PATHS"] != nil
     {
       return text
     }
-    let code: String = {
+    let code =
       switch color {
-      case .none: return ""
-      case .black: return "\u{001B}[30m"
-      case .red: return "\u{001B}[31m"
-      case .green: return "\u{001B}[32m"
-      case .yellow: return "\u{001B}[33m"
-      case .blue: return "\u{001B}[34m"
-      case .magenta: return "\u{001B}[35m"
-      case .cyan: return "\u{001B}[36m"
-      case .white: return "\u{001B}[37m"
+      case .none: ""
+      case .black: "\u{001B}[30m"
+      case .red: "\u{001B}[31m"
+      case .green: "\u{001B}[32m"
+      case .yellow: "\u{001B}[33m"
+      case .blue: "\u{001B}[34m"
+      case .magenta: "\u{001B}[35m"
+      case .cyan: "\u{001B}[36m"
+      case .white: "\u{001B}[37m"
       }
-    }()
     return code + text + "\u{001B}[0m"
   }
 }

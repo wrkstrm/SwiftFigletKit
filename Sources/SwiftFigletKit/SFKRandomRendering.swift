@@ -24,22 +24,22 @@ public enum SFKColorStrategy: Sendable {
   case mixedRandom(
     gradientProbability: Double = 0.5,
     singlePalette: [SFKRenderer.ANSIColor]? = nil,
-    gradientPalette: [SFKRenderer.ANSIColor]? = nil
+    gradientPalette: [SFKRenderer.ANSIColor]? = nil,
   )
 }
 
 /// Rendering options for high-level banner helpers.
 public struct SFKRenderOptions: Sendable {
   /// Optional string placed before the rendered text.
-  public var prefix: String? = nil
+  public var prefix: String?
   /// Optional string placed after the rendered text.
-  public var suffix: String? = nil
+  public var suffix: String?
   /// When true, appends a trailing newline when falling back to plain text.
   public var newline: Bool = false
   /// Reserved for future use (no wrapping currently performed).
-  public var wrapWidth: Int? = nil  // reserved for future use
+  public var wrapWidth: Int?  // reserved for future use
   /// Optional seed for deterministic font/color selection across runs.
-  public var seed: UInt64? = nil
+  public var seed: UInt64?
   /// Force ANSI color even in Xcode consoles.
   public var forceColor: Bool = false
   /// Disable ANSI color in Xcode consoles (default true).
@@ -52,7 +52,7 @@ public struct SFKRenderOptions: Sendable {
     wrapWidth: Int? = nil,
     seed: UInt64? = nil,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) {
     self.prefix = prefix
     self.suffix = suffix
@@ -78,7 +78,7 @@ public enum SFKPalettes {
 
 struct SFKSeededLCG: RandomNumberGenerator {
   private var state: UInt64
-  init(seed: UInt64) { self.state = seed &* 6_364_136_223_846_793_005 &+ 1 }
+  init(seed: UInt64) { state = seed &* 6_364_136_223_846_793_005 &+ 1 }
   mutating func next() -> UInt64 {
     state = 2_862_933_555_777_941_757 &* state &+ 3_037_000_493
     return state
@@ -90,17 +90,18 @@ struct SFKSeededLCG: RandomNumberGenerator {
 extension SFKRenderer {
   private static func toANSI(_ c: SFKRenderer.ANSIColor) -> SFKANSI.Color {
     switch c {
-    case .none: return .none
-    case .black: return .black
-    case .red: return .red
-    case .green: return .green
-    case .yellow: return .yellow
-    case .blue: return .blue
-    case .magenta: return .magenta
-    case .cyan: return .cyan
-    case .white: return .white
+    case .none: .none
+    case .black: .black
+    case .red: .red
+    case .green: .green
+    case .yellow: .yellow
+    case .blue: .blue
+    case .magenta: .magenta
+    case .cyan: .cyan
+    case .white: .white
     }
   }
+
   /// High-level rendering combining font and color strategies with optional seeding.
   ///
   /// - Parameters:
@@ -113,7 +114,7 @@ extension SFKRenderer {
     text: String,
     font: SFKFontStrategy,
     color: SFKColorStrategy,
-    options: SFKRenderOptions = .init()
+    options: SFKRenderOptions = .init(),
   ) -> String {
     // Resolve RNG
     let rng = options.seed.map { SFKSeededLCG(seed: $0) }
@@ -123,6 +124,7 @@ extension SFKRenderer {
       switch font {
       case .named(let name):
         return SFKFonts.find(name)
+
       case .random(let excluding):
         let all = SFKFonts.listNames().filter { !excluding.contains($0) }
         guard !all.isEmpty else { return SFKFonts.randomURL() }
@@ -146,7 +148,8 @@ extension SFKRenderer {
       if let fig = figlet {
         return SFKRenderer.render(
           text: combined, using: fig, color: c, forceColor: options.forceColor,
-          disableColorInXcode: options.disableColorInXcode)
+          disableColorInXcode: options.disableColorInXcode,
+        )
       }
       // Fallback: plain line with ANSI color
       return SFKANSI.wrap(combined + (options.newline ? "\n" : ""), color: toANSI(c))
@@ -160,7 +163,8 @@ extension SFKRenderer {
       if let fig = figlet {
         return SFKRenderer.render(
           text: combined, using: fig, color: color, forceColor: options.forceColor,
-          disableColorInXcode: options.disableColorInXcode)
+          disableColorInXcode: options.disableColorInXcode,
+        )
       }
       return SFKANSI.wrap(combined + (options.newline ? "\n" : ""), color: toANSI(color))
 
@@ -168,7 +172,8 @@ extension SFKRenderer {
       if let fig = figlet {
         let s = SFKRenderer.renderGradientLines(
           text: combined, using: fig, palette: palette, randomizePalette: false,
-          forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode)
+          forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode,
+        )
         return options.newline ? s : s
       }
       // Fallback: map gradient to first color
@@ -191,7 +196,8 @@ extension SFKRenderer {
       if let fig = figlet {
         let s = SFKRenderer.renderGradientLines(
           text: combined, using: fig, palette: pal, randomizePalette: false,
-          forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode)
+          forceColor: options.forceColor, disableColorInXcode: options.disableColorInXcode,
+        )
         return options.newline ? s : s
       }
       let c = pal.first ?? .white
@@ -205,11 +211,13 @@ extension SFKRenderer {
       }()
       guard chooseGradient else {
         return render(
-          text: text, font: font, color: .singleRandom(palette: singlePal), options: options)
+          text: text, font: font, color: .singleRandom(palette: singlePal), options: options,
+        )
       }
       return render(
         text: text, font: font, color: .gradientRandom(palette: gradPal, shuffle: true),
-        options: options)
+        options: options,
+      )
     }
   }
 
@@ -223,7 +231,7 @@ extension SFKRenderer {
   public static func renderRandomBanner(
     text: String,
     color: SFKColorStrategy = .mixedRandom(),
-    options: SFKRenderOptions = .init()
+    options: SFKRenderOptions = .init(),
   ) -> String {
     render(text: text, font: .random(), color: color, options: options)
   }

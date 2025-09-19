@@ -7,7 +7,7 @@ struct SwiftFigletCLI: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-cli",
     abstract: "Render text using bundled FIGlet fonts",
-    subcommands: [Greet.self, Doctor.self]
+    subcommands: [Greet.self, Doctor.self],
   )
 
   @Flag(name: .customLong("list-fonts"), help: "List bundled fonts and exit")
@@ -25,7 +25,7 @@ struct SwiftFigletCLI: ParsableCommand {
   func run() throws {
     // Special-case: allow `swift-figlet-cli doctor` to work even if subcommand
     // parsing is shadowed by positional arguments.
-    if text.count == 1 && text.first?.lowercased() == "doctor" {
+    if text.count == 1, text.first?.lowercased() == "doctor" {
       try Self.performDoctor(verbose: false)
       return
     }
@@ -111,7 +111,7 @@ struct SwiftFigletCLI: ParsableCommand {
 struct Greet: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "greet",
-    abstract: "Print an encouraging phrase with a random FIGlet font"
+    abstract: "Print an encouraging phrase with a random FIGlet font",
   )
 
   @Argument(help: "Phrase to render (optional). If omitted, picks a random one.")
@@ -170,7 +170,7 @@ struct Greet: ParsableCommand {
 struct Doctor: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "doctor",
-    abstract: "Verify gzip availability and font inflation on this system"
+    abstract: "Verify gzip availability and font inflation on this system",
   )
 
   @Flag(name: .shortAndLong, help: "Print additional diagnostics")

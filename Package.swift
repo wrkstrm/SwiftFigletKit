@@ -36,28 +36,28 @@ let package: Package = .init(
       dependencies: [
         "SwiftFigletKit",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-      ]
+      ],
     ),
     .executableTarget(
       name: "SwiftFigletDocGen",
       dependencies: [
         "SwiftFigletKit",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-      ]
+      ],
     ),
     .executableTarget(
       name: "SwiftFigletCLI",
       dependencies: [
         "SwiftFigletKit",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
-      ]
+      ],
     ),
     .testTarget(
       name: "SwiftFigletKitTests",
       dependencies: ["SwiftFigletKit"],
       resources: [
         .copy("testFonts")
-      ]
+      ],
     ),
   ],
 )

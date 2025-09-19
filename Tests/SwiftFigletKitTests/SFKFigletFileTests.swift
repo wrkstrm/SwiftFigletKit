@@ -4,19 +4,19 @@ import Testing
 @testable import SwiftFigletKit
 
 @Suite struct SFKFigletFileTests {
-  @Test func test_Given_Empty_HeaderLine_CreateHeader_Should_Return_Nil() {
+  @Test func Given_Empty_HeaderLine_CreateHeader_Should_Return_Nil() {
     let headerLine = ""
     let sut = SFKFigletFile.Header.createFigletFontHeader(from: headerLine)
     #expect(sut == nil)
   }
 
-  @Test func test_Given_Malformed_HeaderLine_CreateHeader_Should_Return_Nil() {
+  @Test func Given_Malformed_HeaderLine_CreateHeader_Should_Return_Nil() {
     let headerLine = "flf$ 2 1 8 -1 13"
     let sut = SFKFigletFile.Header.createFigletFontHeader(from: headerLine)
     #expect(sut == nil)
   }
 
-  @Test func test_Given_NonEmpty_HeaderLine_CreateHeader_Should_Return_Header() {
+  @Test func Given_NonEmpty_HeaderLine_CreateHeader_Should_Return_Header() {
     let headerLine = "flf2a$ 2 1 8 -1 13"
     let sut = SFKFigletFile.Header.createFigletFontHeader(from: headerLine)
     #expect(sut != nil)
@@ -29,7 +29,7 @@ import Testing
     #expect(sut?.commentDirection == SFKFigletFile.PrintDirection.leftToRight)
   }
 
-  @Test func test_Given_NonEmpty_ShortHeaderLine_CreateHeader_Should_Return_Header() {
+  @Test func Given_NonEmpty_ShortHeaderLine_CreateHeader_Should_Return_Header() {
     let headerLine = "flf2a$ 2 1"
     let sut = SFKFigletFile.Header.createFigletFontHeader(from: headerLine)
     #expect(sut != nil)
@@ -42,7 +42,7 @@ import Testing
     #expect(sut?.commentDirection == SFKFigletFile.PrintDirection.leftToRight)
   }
 
-  @Test func test_Given_NonExistingFile_Should_ReturnNil() {
+  @Test func Given_NonExistingFile_Should_ReturnNil() {
     let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/This file is not there")
@@ -52,7 +52,7 @@ import Testing
     #expect(figletFile == nil)
   }
 
-  @Test func test_Given_File_Should_Load_FigletFont() {
+  @Test func Given_File_Should_Load_FigletFont() {
     let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/Broadway.flf")
@@ -69,7 +69,7 @@ import Testing
     #expect(figletFile?.lines.first == "$        $@")
   }
 
-  @Test func test_Given_BrokenFile_Should_Load_With_Latin1_Fallback() {
+  @Test func Given_BrokenFile_Should_Load_With_Latin1_Fallback() {
     let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/Wow.flf")

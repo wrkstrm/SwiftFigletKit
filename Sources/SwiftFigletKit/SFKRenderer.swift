@@ -7,6 +7,7 @@ public enum SFKRenderer {
   public enum ANSIColor: String, Sendable {
     case none, black, red, green, yellow, blue, magenta, cyan, white
   }
+
   private static let defaultPalette: [ANSIColor] = [.red, .yellow, .green, .cyan, .blue, .magenta]
 
   // Build lines for a given font
@@ -24,37 +25,38 @@ public enum SFKRenderer {
     }
     return lines
   }
+
   private static func wrap(_ text: String, color: ANSIColor, force: Bool, disableInXcode: Bool)
     -> String
   {
     if color == .none { return text }
-    if disableInXcode && !force
-      && ProcessInfo.processInfo.environment["__XCODE_BUILT_PRODUCTS_DIR_PATHS"] != nil
+    if disableInXcode, !force,
+      ProcessInfo.processInfo.environment["__XCODE_BUILT_PRODUCTS_DIR_PATHS"] != nil
     {
       return text
     }
-    let code: String = {
+    let code =
       switch color {
-      case .none: return ""
-      case .black: return "\u{001B}[30m"
-      case .red: return "\u{001B}[31m"
-      case .green: return "\u{001B}[32m"
-      case .yellow: return "\u{001B}[33m"
-      case .blue: return "\u{001B}[34m"
-      case .magenta: return "\u{001B}[35m"
-      case .cyan: return "\u{001B}[36m"
-      case .white: return "\u{001B}[37m"
+      case .none: ""
+      case .black: "\u{001B}[30m"
+      case .red: "\u{001B}[31m"
+      case .green: "\u{001B}[32m"
+      case .yellow: "\u{001B}[33m"
+      case .blue: "\u{001B}[34m"
+      case .magenta: "\u{001B}[35m"
+      case .cyan: "\u{001B}[36m"
+      case .white: "\u{001B}[37m"
       }
-    }()
     return code + text + "\u{001B}[0m"
   }
+
   /// Render text using a previously loaded font.
   public static func render(
     text: String,
     using font: SFKFont,
     color: ANSIColor = .none,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) -> String {
     let lines = buildLines(text: text, using: font)
     let rendered = lines.joined(separator: "\n") + "\n"
@@ -67,12 +69,13 @@ public enum SFKRenderer {
     fontURL: URL,
     color: ANSIColor = .none,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) -> String? {
     guard let font = SFKFont.from(url: fontURL) else { return nil }
     return render(
       text: text, using: font, color: color, forceColor: forceColor,
-      disableColorInXcode: disableColorInXcode)
+      disableColorInXcode: disableColorInXcode,
+    )
   }
 
   /// Render text using a named font (base name or .flf). Special name "random" uses a random font.
@@ -82,25 +85,25 @@ public enum SFKRenderer {
     fontName name: String?,
     color: ANSIColor = .none,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) -> String? {
-    let chosenURL: URL?
-    if let name = name, !name.isEmpty {
-      if name.lowercased() == "random" {
-        chosenURL = SFKFonts.randomURL()
+    let chosenURL: URL? =
+      if let name, !name.isEmpty {
+        if name.lowercased() == "random" {
+          SFKFonts.randomURL()
+        } else {
+          SFKFonts.find(name)
+        }
       } else {
-        chosenURL = SFKFonts.find(name)
+        SFKFonts.find("Standard")
       }
-    } else {
-      chosenURL = SFKFonts.find("Standard")
-    }
     guard let url = chosenURL else { return nil }
     return render(
       text: text,
       fontURL: url,
       color: color,
       forceColor: forceColor,
-      disableColorInXcode: disableColorInXcode
+      disableColorInXcode: disableColorInXcode,
     )
   }
 
@@ -111,16 +114,17 @@ public enum SFKRenderer {
     palette: [ANSIColor]? = nil,
     randomizePalette: Bool = false,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) -> String {
     let lines = buildLines(text: text, using: font)
     var colors = palette ?? defaultPalette
     if randomizePalette { colors.shuffle() }
     guard !colors.isEmpty else { return lines.joined(separator: "\n") + "\n" }
-    let colored = lines.enumerated().map { (idx, line) in
+    let colored = lines.enumerated().map { idx, line in
       wrap(
         line, color: colors[idx % colors.count], force: forceColor,
-        disableInXcode: disableColorInXcode)
+        disableInXcode: disableColorInXcode,
+      )
     }
     return colored.joined(separator: "\n") + "\n"
   }
@@ -131,12 +135,13 @@ public enum SFKRenderer {
     palette: [ANSIColor]? = nil,
     randomizePalette: Bool = false,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) -> String? {
     guard let font = SFKFont.from(url: fontURL) else { return nil }
     return renderGradientLines(
       text: text, using: font, palette: palette, randomizePalette: randomizePalette,
-      forceColor: forceColor, disableColorInXcode: disableColorInXcode)
+      forceColor: forceColor, disableColorInXcode: disableColorInXcode,
+    )
   }
 
   public static func renderGradientLines(
@@ -145,17 +150,18 @@ public enum SFKRenderer {
     palette: [ANSIColor]? = nil,
     randomizePalette: Bool = false,
     forceColor: Bool = false,
-    disableColorInXcode: Bool = true
+    disableColorInXcode: Bool = true,
   ) -> String? {
-    let chosenURL: URL?
-    if let name, !name.isEmpty {
-      chosenURL = (name.lowercased() == "random") ? SFKFonts.randomURL() : SFKFonts.find(name)
-    } else {
-      chosenURL = SFKFonts.find("Standard")
-    }
+    let chosenURL: URL? =
+      if let name, !name.isEmpty {
+        (name.lowercased() == "random") ? SFKFonts.randomURL() : SFKFonts.find(name)
+      } else {
+        SFKFonts.find("Standard")
+      }
     guard let url = chosenURL else { return nil }
     return renderGradientLines(
       text: text, fontURL: url, palette: palette, randomizePalette: randomizePalette,
-      forceColor: forceColor, disableColorInXcode: disableColorInXcode)
+      forceColor: forceColor, disableColorInXcode: disableColorInXcode,
+    )
   }
 }

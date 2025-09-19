@@ -7,17 +7,19 @@ struct SwiftFigletDedupe: ParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-dedupe",
     abstract:
-      "Move duplicate font variants (spaces/uppercase names) to docs/Fonts/duplicates, keeping a simple canonical file per group"
+      "Move duplicate font variants (spaces/uppercase names) to docs/Fonts/duplicates, keeping a simple canonical file per group",
   )
 
   @Option(
     name: .customLong("root"),
-    help: "Path to Fonts directory (default: ./Sources/SwiftFigletKit/Resources/Fonts)")
+    help: "Path to Fonts directory (default: ./Sources/SwiftFigletKit/Resources/Fonts)",
+  )
   var rootPath: String?
 
   @Option(
     name: .customLong("dest"),
-    help: "Destination directory for moved duplicates (default: docs/Fonts/duplicates)")
+    help: "Destination directory for moved duplicates (default: docs/Fonts/duplicates)",
+  )
   var destPath: String = "docs/Fonts/duplicates"
 
   @Flag(name: .customLong("apply"), help: "Apply moves (otherwise dry-run)")
@@ -59,7 +61,7 @@ struct SwiftFigletDedupe: ParsableCommand {
     var plannedMoves: [(from: URL, to: URL)] = []
     for (_, g) in groups where g.count > 1 {
       // choose simplest to keep (no spaces, lowercase, shortest)
-      let keep = chooseSimplest(files: g.map { $0.url.lastPathComponent })
+      let keep = chooseSimplest(files: g.map(\.url.lastPathComponent))
       for e in g {
         let file = e.url.lastPathComponent
         if file == keep { continue }
@@ -80,14 +82,17 @@ struct SwiftFigletDedupe: ParsableCommand {
 
     if !apply {
       print("Dry-run. Planned moves (\(plannedMoves.count)):")
-      for m in plannedMoves { print("MV \(m.from.path) -> \(m.to.path)") }
+      for m in plannedMoves {
+        print("MV \(m.from.path) -> \(m.to.path)")
+      }
       return
     }
 
     try fm.createDirectory(at: dest, withIntermediateDirectories: true)
     for m in plannedMoves {
       try fm.createDirectory(
-        at: m.to.deletingLastPathComponent(), withIntermediateDirectories: true)
+        at: m.to.deletingLastPathComponent(), withIntermediateDirectories: true,
+      )
       // Move (overwrite if exists)
       if fm.fileExists(atPath: m.to.path) { try fm.removeItem(at: m.to) }
       try fm.moveItem(at: m.from, to: m.to)
@@ -116,7 +121,8 @@ struct SwiftFigletDedupe: ParsableCommand {
   private func normalizeLineEndings(data: Data) -> Data {
     if let s = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1) {
       let n = s.replacingOccurrences(of: "\r\n", with: "\n").replacingOccurrences(
-        of: "\r", with: "\n")
+        of: "\r", with: "\n",
+      )
       return Data(n.utf8)
     }
     return data

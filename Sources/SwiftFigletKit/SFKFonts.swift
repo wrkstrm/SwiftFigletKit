@@ -63,12 +63,12 @@ public enum SFKFonts {
     let wanted = normalize(name)
     for url in all() {
       let last = url.lastPathComponent
-      let base: String
-      if last.lowercased().hasSuffix(".flf.gz") {
-        base = url.deletingPathExtension().deletingPathExtension().lastPathComponent
-      } else {
-        base = url.deletingPathExtension().lastPathComponent
-      }
+      let base: String =
+        if last.lowercased().hasSuffix(".flf.gz") {
+          url.deletingPathExtension().deletingPathExtension().lastPathComponent
+        } else {
+          url.deletingPathExtension().lastPathComponent
+        }
       if normalize(base) == wanted || normalize(last) == wanted { return url }
     }
     return nil

@@ -169,18 +169,18 @@ public struct SFKFigletFile {
     // Split into lines; keep empty lines for vertical spacing.
     let lines = normalized.split(
       separator: "\n",
-      omittingEmptySubsequences: false
+      omittingEmptySubsequences: false,
     )
 
     guard
       let header = Header.createFigletFontHeader(
-        from: String(lines.first ?? "")
+        from: String(lines.first ?? ""),
       )
     else {
       #if DEBUG
       fputs(
         "[SwiftFigletKit] Invalid FIGlet header in file: \(fileURL.path)\n",
-        stderr
+        stderr,
       )
       if let first = lines.first {
         fputs("[SwiftFigletKit] First line: \(String(first))\n", stderr)
@@ -198,7 +198,7 @@ public struct SFKFigletFile {
     return .init(
       header: header,
       headerLines: headerLines,
-      lines: characterLines
+      lines: characterLines,
     )
   }
 

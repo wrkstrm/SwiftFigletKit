@@ -11,7 +11,7 @@ import Testing
 @testable import SwiftFigletKit
 
 @Suite struct SFKFontTests {
-  @Test func test_Given_FontFile_LoadsFont() {
+  @Test func Given_FontFile_LoadsFont() {
     let sampleA = [
       "                      ",
       "         .8.          ",
@@ -36,7 +36,7 @@ import Testing
     #expect(font?.fkChar["A"]?.lines == sampleA)
   }
 
-  @Test func test_Given_FontFile_Font_ContainsFigletFontFile() {
+  @Test func Given_FontFile_Font_ContainsFigletFontFile() {
     let thisSourceFile = URL(fileURLWithPath: #filePath)
     let thisDirectory = thisSourceFile.deletingLastPathComponent()
     let resourceURL = thisDirectory.appendingPathComponent("testFonts/Broadway.flf")
