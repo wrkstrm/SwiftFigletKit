@@ -3,7 +3,7 @@ import Foundation
 import SwiftFigletKit
 
 @main
-struct SwiftFigletCLI: ParsableCommand {
+struct SwiftFigletCLI: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-cli",
     abstract: "Render text using bundled FIGlet fonts",
@@ -22,7 +22,7 @@ struct SwiftFigletCLI: ParsableCommand {
   @Argument(help: "Text to render. If omitted, reads from stdin when piped.")
   var text: [String] = []
 
-  func run() throws {
+  func run() async throws {
     // Special-case: allow `swift-figlet-cli doctor` to work even if subcommand
     // parsing is shadowed by positional arguments.
     if text.count == 1, text.first?.lowercased() == "doctor" {
@@ -108,7 +108,7 @@ struct SwiftFigletCLI: ParsableCommand {
 }
 
 // Subcommand: greet (random phrase with random font)
-struct Greet: ParsableCommand {
+struct Greet: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "greet",
     abstract: "Print an encouraging phrase with a random FIGlet font",
@@ -117,7 +117,7 @@ struct Greet: ParsableCommand {
   @Argument(help: "Phrase to render (optional). If omitted, picks a random one.")
   var phrase: [String] = []
 
-  mutating func run() throws {
+  mutating func run() async throws {
     let msg = phrase.isEmpty ? (randomPhrase() ?? "You’ve got this") : phrase.joined(separator: " ")
     guard let ascii = SFKRenderer.render(text: msg, fontName: "random") else {
       throw ValidationError("Failed to render with random font")
@@ -167,7 +167,7 @@ struct Greet: ParsableCommand {
 }
 
 // Subcommand: doctor (environment and resource checks)
-struct Doctor: ParsableCommand {
+struct Doctor: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "doctor",
     abstract: "Verify gzip availability and font inflation on this system",
@@ -176,7 +176,7 @@ struct Doctor: ParsableCommand {
   @Flag(name: .shortAndLong, help: "Print additional diagnostics")
   var verbose: Bool = false
 
-  mutating func run() throws {
+  mutating func run() async throws {
     var ok = true
 
     // 1) Check gunzip/gzip availability

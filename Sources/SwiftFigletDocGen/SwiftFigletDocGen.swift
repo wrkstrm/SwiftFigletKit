@@ -3,7 +3,7 @@ import Foundation
 import SwiftFigletKit
 
 @main
-struct SwiftFigletDocGen: ParsableCommand {
+struct SwiftFigletDocGen: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-doc-gen",
     abstract: "Generate a DocC Fonts Gallery article for SwiftFigletKit",
@@ -41,7 +41,7 @@ struct SwiftFigletDocGen: ParsableCommand {
   )
   var emitDeletePlanPath: String?
 
-  mutating func run() throws {
+  mutating func run() async throws {
     let fm = FileManager.default
     let outURL = URL(fileURLWithPath: outputPath)
 

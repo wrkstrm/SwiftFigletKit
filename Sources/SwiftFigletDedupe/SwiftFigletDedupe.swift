@@ -3,7 +3,7 @@ import Foundation
 import SwiftFigletKit
 
 @main
-struct SwiftFigletDedupe: ParsableCommand {
+struct SwiftFigletDedupe: AsyncParsableCommand {
   static let configuration = CommandConfiguration(
     commandName: "swift-figlet-dedupe",
     abstract:
@@ -25,7 +25,7 @@ struct SwiftFigletDedupe: ParsableCommand {
   @Flag(name: .customLong("apply"), help: "Apply moves (otherwise dry-run)")
   var apply: Bool = false
 
-  mutating func run() throws {
+  mutating func run() async throws {
     let fm = FileManager.default
     let cwd = URL(fileURLWithPath: fm.currentDirectoryPath)
     let defaultRoot =
