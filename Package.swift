@@ -19,11 +19,20 @@ let package: Package = .init(
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
     // DocC plugin enables `swift package generate-documentation`
     .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"),
+    .package(name: "CommonShell", path: "../common/domain/system/common-shell")
   ],
   targets: [
+    .systemLibrary(
+      name: "CZlib",
+      pkgConfig: nil,
+      providers: [
+        .brew(["zlib"]),
+        .apt(["zlib1g-dev"]),
+      ]
+    ),
     .target(
       name: "SwiftFigletKit",
-      dependencies: [],
+      dependencies: ["CZlib"],
       resources: [
         .copy("Resources/Fonts")
       ],
@@ -50,6 +59,7 @@ let package: Package = .init(
       dependencies: [
         "SwiftFigletKit",
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
+        .product(name: "CommonShell", package: "CommonShell"),
       ],
     ),
     .testTarget(

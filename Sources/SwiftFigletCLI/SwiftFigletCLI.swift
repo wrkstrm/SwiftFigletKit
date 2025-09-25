@@ -1,6 +1,8 @@
 import ArgumentParser
 import Foundation
 import SwiftFigletKit
+import CommonShell
+import CommonProcess
 
 @main
 struct SwiftFigletCLI: AsyncParsableCommand {
@@ -26,7 +28,7 @@ struct SwiftFigletCLI: AsyncParsableCommand {
     // Special-case: allow `swift-figlet-cli doctor` to work even if subcommand
     // parsing is shadowed by positional arguments.
     if text.count == 1, text.first?.lowercased() == "doctor" {
-      try Self.performDoctor(verbose: false)
+      try await Self.performDoctor(verbose: false)
       return
     }
     if listFonts {
@@ -68,9 +70,11 @@ struct SwiftFigletCLI: AsyncParsableCommand {
     print(string: message, usingFont: font)
   }
 
-  private static func performDoctor(verbose: Bool) throws {
+  private static func performDoctor(verbose: Bool) async throws {
     var ok = true
-    let gunzipOK = checkTool(["gunzip", "--version"]) || checkTool(["gzip", "--version"])
+    let gun1 = await checkTool(["gunzip", "--version"]) 
+    let gun2 = await checkTool(["gzip", "--version"]) 
+    let gunzipOK = gun1 || gun2
     if gunzipOK {
       print("[OK] gzip found (gunzip/gzip available)")
     } else {
@@ -93,16 +97,11 @@ struct SwiftFigletCLI: AsyncParsableCommand {
     if !ok { throw ValidationError("Doctor found issues") }
   }
 
-  private static func checkTool(_ args: [String]) -> Bool {
-    let p = Process()
-    p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    p.arguments = args
-    p.standardOutput = Pipe()
-    p.standardError = Pipe()
+  private static func checkTool(_ args: [String]) async -> Bool {
+    let shell = CommonShell()
     do {
-      try p.run()
-      p.waitUntilExit()
-      return p.terminationStatus == 0
+      let out = try await shell.withExec(reference: .name(args.first ?? "")).launch(options: Array(args.dropFirst()))
+      switch out.exitStatus { case .exited(let code): return code == 0; case .signalled: return false }
     } catch { return false }
   }
 }
@@ -180,8 +179,9 @@ struct Doctor: AsyncParsableCommand {
     var ok = true
 
     // 1) Check gunzip/gzip availability
-    let gunzipOK =
-      Self.checkTool(["gunzip", "--version"]) || Self.checkTool(["gzip", "--version"])
+    let gun1 = await Self.checkTool(["gunzip", "--version"]) 
+    let gun2 = await Self.checkTool(["gzip", "--version"]) 
+    let gunzipOK = gun1 || gun2
     if gunzipOK {
       print("[OK] gzip found (gunzip/gzip available)")
     } else {
@@ -216,16 +216,11 @@ struct Doctor: AsyncParsableCommand {
     if verbose { print("[OK] Environment ready for SwiftFigletKit on this platform") }
   }
 
-  private static func checkTool(_ args: [String]) -> Bool {
-    let p = Process()
-    p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    p.arguments = args
-    p.standardOutput = Pipe()
-    p.standardError = Pipe()
+  private static func checkTool(_ args: [String]) async -> Bool {
+    let shell = CommonShell()
     do {
-      try p.run()
-      p.waitUntilExit()
-      return p.terminationStatus == 0
+      let out = try await shell.withExec(reference: .name(args.first ?? "")).launch(options: Array(args.dropFirst()))
+      switch out.exitStatus { case .exited(let code): return code == 0; case .signalled: return false }
     } catch { return false }
   }
 }

@@ -26,9 +26,11 @@ Docs
 
 Packaging and environment
 
-- Fonts are bundled as gzip-compressed resources under `Resources/Fonts/*.flf.gz` to reduce size. The library transparently inflates `.flf.gz` at runtime.
-- Linux/macOS requirement: `gzip`/`gunzip` must be available on PATH. Verify with:
-  - `swift-figlet-cli doctor`
+- Fonts are bundled as gzip-compressed resources under `Resources/Fonts/*.flf.gz` to reduce size. The library inflates `.flf.gz` in-process using zlib (no external tools).
+- Dependency: zlib
+  - Linux CI/hosts need development headers: `sudo apt-get install -y zlib1g-dev`.
+  - macOS hosts have zlib by default; Homebrew `zlib` is also supported.
+  - The package declares a `systemLibrary` (CZlib) so SwiftPM links `-lz` automatically.
 - Editable font sources live under `Sources/SwiftFigletKit/Fonts/{core,duplicates}` and are mirrored into resources via:
   - `npm run figlet:fonts:prepare`
 

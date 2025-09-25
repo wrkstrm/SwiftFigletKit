@@ -18,6 +18,7 @@
  */
 // swiftlint:enable line_length
 import Foundation
+import CZlib
 
 public struct SFKFigletFile {
   // Normalization helpers for line endings.
@@ -141,7 +142,7 @@ public struct SFKFigletFile {
     // Support plain `.flf` and gzip-compressed `.flf.gz` files.
     let text: String
     if fileURL.pathExtension.lowercased() == "gz" {
-      let inflated: Data? = decompressGzipExternal(fileURL.path)
+      let inflated: Data? = decompressGzipInProcess(fileURL.path)
       guard let bytes = inflated else { return nil }
       text =
         String(data: bytes, encoding: .utf8)
@@ -202,24 +203,27 @@ public struct SFKFigletFile {
     )
   }
 
-  // no in-process gzip for portability here; use external gunzip
-
-  // Fallback decompressor using system gunzip
-  private static func decompressGzipExternal(_ path: String) -> Data? {
-    let process = Process()
-    process.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-    process.arguments = ["gunzip", "-c", path]
-    let pipe = Pipe()
-    process.standardOutput = pipe
-    process.standardError = Pipe()
-    do {
-      try process.run()
-      let data = pipe.fileHandleForReading.readDataToEndOfFile()
-      process.waitUntilExit()
-      guard process.terminationStatus == 0 else { return nil }
-      return data
-    } catch {
-      return nil
+  // In-process gzip decompressor using zlib's gz* APIs
+  private static func decompressGzipInProcess(_ path: String) -> Data? {
+    var output = Data()
+    let chunkSize = 32 * 1024
+    return path.withCString { cPath -> Data? in
+      return "rb".withCString { cMode -> Data? in
+        guard let file = gzopen(cPath, cMode) else { return nil }
+        defer { _ = gzclose(file) }
+        var buffer = [UInt8](repeating: 0, count: chunkSize)
+        while true {
+          let bufCount = buffer.count
+          let readCount: Int32 = buffer.withUnsafeMutableBytes { ptr in
+            guard let base = ptr.baseAddress else { return 0 }
+            return gzread(file, base, UInt32(bufCount))
+          }
+          if readCount < 0 { return nil }
+          if readCount == 0 { break }
+          output.append(buffer, count: Int(readCount))
+        }
+        return output
+      }
     }
   }
 }

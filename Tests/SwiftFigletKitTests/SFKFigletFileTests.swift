@@ -77,4 +77,16 @@ import Testing
     let figletFile = SFKFigletFile.from(url: resourceURL)
     #expect(figletFile != nil)
   }
+
+  @Test func Given_CompressedFont_Should_Inflate_InProcess() {
+    // Find a bundled .flf.gz in the library resources via SFKFonts helper
+    let gz = SFKFonts.all().first { $0.lastPathComponent.lowercased().hasSuffix(".flf.gz") }
+    #expect(gz != nil)
+    if let url = gz {
+      let figlet = SFKFigletFile.from(url: url)
+      #expect(figlet != nil)
+      #expect(figlet?.header.height ?? 0 > 0)
+      #expect(!figlet!.lines.isEmpty)
+    }
+  }
 }
