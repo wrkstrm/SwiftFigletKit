@@ -1,8 +1,8 @@
 import ArgumentParser
+import CommonProcess
+import CommonShell
 import Foundation
 import SwiftFigletKit
-import CommonShell
-import CommonProcess
 
 @main
 struct SwiftFigletCLI: AsyncParsableCommand {
@@ -72,8 +72,8 @@ struct SwiftFigletCLI: AsyncParsableCommand {
 
   private static func performDoctor(verbose: Bool) async throws {
     var ok = true
-    let gun1 = await checkTool(["gunzip", "--version"]) 
-    let gun2 = await checkTool(["gzip", "--version"]) 
+    let gun1 = await checkTool(["gunzip", "--version"])
+    let gun2 = await checkTool(["gzip", "--version"])
     let gunzipOK = gun1 || gun2
     if gunzipOK {
       print("[OK] gzip found (gunzip/gzip available)")
@@ -100,8 +100,12 @@ struct SwiftFigletCLI: AsyncParsableCommand {
   private static func checkTool(_ args: [String]) async -> Bool {
     let shell = CommonShell()
     do {
-      let out = try await shell.withExec(reference: .name(args.first ?? "")).launch(options: Array(args.dropFirst()))
-      switch out.exitStatus { case .exited(let code): return code == 0; case .signalled: return false }
+      let out = try await shell.withExec(reference: .name(args.first ?? "")).launch(
+        options: Array(args.dropFirst()))
+      switch out.exitStatus {
+      case .exited(let code): return code == 0
+      case .signalled: return false
+      }
     } catch { return false }
   }
 }
@@ -179,8 +183,8 @@ struct Doctor: AsyncParsableCommand {
     var ok = true
 
     // 1) Check gunzip/gzip availability
-    let gun1 = await Self.checkTool(["gunzip", "--version"]) 
-    let gun2 = await Self.checkTool(["gzip", "--version"]) 
+    let gun1 = await Self.checkTool(["gunzip", "--version"])
+    let gun2 = await Self.checkTool(["gzip", "--version"])
     let gunzipOK = gun1 || gun2
     if gunzipOK {
       print("[OK] gzip found (gunzip/gzip available)")
@@ -219,8 +223,12 @@ struct Doctor: AsyncParsableCommand {
   private static func checkTool(_ args: [String]) async -> Bool {
     let shell = CommonShell()
     do {
-      let out = try await shell.withExec(reference: .name(args.first ?? "")).launch(options: Array(args.dropFirst()))
-      switch out.exitStatus { case .exited(let code): return code == 0; case .signalled: return false }
+      let out = try await shell.withExec(reference: .name(args.first ?? "")).launch(
+        options: Array(args.dropFirst()))
+      switch out.exitStatus {
+      case .exited(let code): return code == 0
+      case .signalled: return false
+      }
     } catch { return false }
   }
 }

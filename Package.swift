@@ -19,7 +19,7 @@ let package: Package = .init(
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
     // DocC plugin enables `swift package generate-documentation`
     .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.3.0"),
-    .package(name: "CommonShell", path: "../common/domain/system/common-shell")
+    .package(name: "CommonShell", path: "../common/domain/system/common-shell"),
   ],
   targets: [
     .systemLibrary(

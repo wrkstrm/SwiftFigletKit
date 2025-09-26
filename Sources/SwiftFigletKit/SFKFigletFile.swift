@@ -1,3 +1,5 @@
+import CZlib
+import Foundation
 //
 //  SFKFigletFile.swift
 //  SwiftFigletKit
@@ -17,8 +19,6 @@
 
  */
 // swiftlint:enable line_length
-import Foundation
-import CZlib
 
 public struct SFKFigletFile {
   // Normalization helpers for line endings.
