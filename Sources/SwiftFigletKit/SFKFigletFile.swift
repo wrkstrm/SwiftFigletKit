@@ -1,5 +1,6 @@
 import CZlib
 import Foundation
+
 //
 //  SFKFigletFile.swift
 //  SwiftFigletKit
