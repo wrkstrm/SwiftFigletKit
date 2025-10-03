@@ -61,9 +61,17 @@ struct SwiftFigletDocGen: AsyncParsableCommand {
       let name: String
       let url: URL
     }
-    var entries: [Entry] = urls.map {
-      .init(name: $0.deletingPathExtension().lastPathComponent, url: $0)
+    func baseFontName(from url: URL) -> String {
+      let last = url.lastPathComponent
+      if last.lowercased().hasSuffix(".flf.gz") {
+        return url.deletingPathExtension().deletingPathExtension().lastPathComponent
+      } else if last.lowercased().hasSuffix(".flf") {
+        return url.deletingPathExtension().lastPathComponent
+      } else {
+        return last
+      }
     }
+    var entries: [Entry] = urls.map { .init(name: baseFontName(from: $0), url: $0) }
 
     // Optional deduplication by file content after normalizing line endings
     // Build hash groups for duplicates
