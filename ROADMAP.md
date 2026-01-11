@@ -33,7 +33,7 @@ This roadmap tracks SwiftFigletKit work: fonts lifecycle, packaging, docs, and C
   - Add “Design & Packaging” DocC article explaining gz packaging, hashing, and lazy load behavior.
   - Publish size/save metrics (tar.gz and per‑font gz) and add a badge in README.
 
-## Commands (quick reference)
+## Commands (Quick Reference)
 
 - Generate gallery + build docs:
   - `npm run docs:figlet:build+gallery`

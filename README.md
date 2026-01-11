@@ -40,7 +40,7 @@ Notes
 - The CLI uses Swift Argument Parser and supports long-form flags like
   `--font` and `--list-fonts`.
 
-## Color and gradients
+## Color and Gradients
 
 SwiftFigletKit includes lightweight ANSI color helpers (disabled by default in Xcode environments)
 and simple gradient rendering across lines.
@@ -82,7 +82,7 @@ Notes:
   Xcode debug console) may not. Use `forceColor` to override suppression when needed.
 - Rendering functions remain backward compatible. If you don’t pass a color, output is unchanged.
 
-## Random rendering (fonts + colors)
+## Random Rendering (Fonts + Colors)
 
 SwiftFigletKit exposes high‑level APIs to pick random fonts and color strategies with optional
 seeding for deterministic output. Fallbacks ensure a plain ANSI‑colored line is returned even when
