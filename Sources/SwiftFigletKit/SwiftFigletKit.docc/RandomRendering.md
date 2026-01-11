@@ -14,7 +14,7 @@ call. You can:
 When FIGlet fonts aren’t available, the APIs return a plain ANSI‑colored line so your app can still
 show a banner without failing.
 
-## Choose A Strategy
+## Choose a Strategy
 
 - `SFKFontStrategy`: `SFKFontStrategy/named(_:)` or `SFKFontStrategy/random(excluding:)`
 - `SFKColorStrategy`: `SFKColorStrategy/single(_:)`,
@@ -23,7 +23,7 @@ show a banner without failing.
   `SFKColorStrategy/mixedRandom(gradientProbability:singlePalette:gradientPalette:)`
 - `SFKRenderOptions`: `prefix`, `suffix`, `newline`, `seed`, `forceColor`, `disableColorInXcode`
 
-## Render with A Random Font
+## Render with a Random Font
 
 ```swift
 import SwiftFigletKit
